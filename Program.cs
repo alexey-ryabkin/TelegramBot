@@ -1,6 +1,4 @@
-﻿// Убрать лишний конструктор. Пусть всё будет в главном методе
-
-using System.Threading.Tasks;
+﻿using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -162,6 +160,23 @@ namespace TelegramBot
             }
         }
         /// <summary>
+        /// Сохраняет все необходимые данные в структуру ChatInfo. 
+        /// Обновляет сумму слов, словарь частоты появления слов, словарь ID сообщения — список слов.
+        /// </summary>
+        /// <param name="msg">Сообщение Telegram API, в котором есть текст.</param>
+        public static void HandleMessage(Message msg)
+        {
+            System.Diagnostics.Debug.Assert(msg.Text is not null);
+            long chatId = msg.Chat.Id;
+            string[] words = ExtractWords(msg.Text);
+            if (!ChatInfo.Chats.ContainsKey(chatId)) new ChatInfo(chatId);
+            ChatInfo.Chats[chatId].AddMessage(msg.MessageId, words);
+            Log("Обработано сообщение в чате {0}, добавлено {1} слов, всего в чате {2} слов.",
+                msg.Chat, 
+                words.Length, 
+                ChatInfo.Chats[chatId].WordCount);
+        }
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="args">0 — публичный режим, ключ API спрашивается, 1 — личный режим, ключ API лежит в секретах 2 — тестовый режим</param>
@@ -179,18 +194,18 @@ namespace TelegramBot
             int? offset = null;
             while (!cts.IsCancellationRequested && bot is not null)
             {
-                Thread.Sleep(10000);
                 var updates = await bot.GetUpdates(offset, timeout: 2);
                 foreach (var update in updates)
                 {
                     if (offset is null || offset <= update.Id) offset = update.Id + 1;
                     try
                     {
-                        Log("Получено обновление");
-                        switch (update)
+                        if (update.Message is not null && update.Message.Text is not null && update.Message.Text.Length > 0)
                         {
-                            case { Message: { } msg }: await HandleMessage(msg); break;
+                            Log("Получено обновление, в котором есть текст длиной {0}", update.Message.Text.Length);
+                            HandleMessage(update.Message);
                         }
+                        else Log("Получено обновление, в котором нет текста: {0}", update.Type.ToString() ?? "NULL");
                     }
                     catch (Exception ex)
                     {
@@ -199,8 +214,23 @@ namespace TelegramBot
                     }
                     if (cts.IsCancellationRequested) break;
                 }
+                foreach(ChatInfo chat in ChatInfo.Chats.Values)
+                {
+                    if (chat.WordCount > 300)
+                    {
+                        Log("Количество слов в чате {0} превысило 300. Запускаю модуль поиска цитаты.", chat.chatId);
+
+                    }
+                }
+                //Если количество слов для любого чата превысило 300, запустить модуль на поиск цитаты Мао
+                //Если цитата не найдена, то написать в чат сообщение о недостаточной коммунистическости тем
+                //Если цитата найдена
+                //Проверить все сообщения и найти среди них содержащее слово, возвращённое модулем
+                //Если слово не найдено, то отправить итоговое сообщение без ответа
+                //Если слово найдено, то отправить сообщение в ответ на него
+                //Составить сообщение, отправить его
+                //Очистить число сообщений для данного чата и очистить все сообщения для данного чата, очистить все слова для текущего чата
             }
-            //bot!.OnMessage += ManualRespond;
 
 
             while (input != "exit")
@@ -210,6 +240,18 @@ namespace TelegramBot
             cts.Cancel();
             Log("Работа программы завершается успешно с кодом 0.");
             return 0;
+        }
+        public static string[] ExtractWords(string input)
+        {
+            // Регулярное выражение для извлечения слов, содержащих только кириллические буквы
+            Regex regex = new Regex("[а-яА-Я]+");
+
+            // Преобразование строки в список слов
+            string[] words = regex.Matches(input)
+                             .Select(match => match.Value.ToLower()) // Приведение к нижнему регистру
+                             .Where(word => word.Length > 4)        // Исключение слов длиной 4 и меньше
+                             .ToArray();
+            return words;
         }
     }
 }

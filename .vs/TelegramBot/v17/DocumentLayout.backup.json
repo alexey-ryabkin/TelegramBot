@@ -3,8 +3,16 @@
   "WorkspaceRootPath": "D:\\YandexDisk\\C#\\TelegramBot\\TelegramBot\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{0E0E7A6F-24A3-4F7B-AACF-BEC83FD686C8}|TelegramBot.csproj|d:\\yandexdisk\\c#\\telegrambot\\telegrambot\\maofollower.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0E0E7A6F-24A3-4F7B-AACF-BEC83FD686C8}|TelegramBot.csproj|solutionrelative:maofollower.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{0E0E7A6F-24A3-4F7B-AACF-BEC83FD686C8}|TelegramBot.csproj|d:\\yandexdisk\\c#\\telegrambot\\telegrambot\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{0E0E7A6F-24A3-4F7B-AACF-BEC83FD686C8}|TelegramBot.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0E0E7A6F-24A3-4F7B-AACF-BEC83FD686C8}|TelegramBot.csproj|d:\\yandexdisk\\c#\\telegrambot\\telegrambot\\chatinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0E0E7A6F-24A3-4F7B-AACF-BEC83FD686C8}|TelegramBot.csproj|solutionrelative:chatinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{0E0E7A6F-24A3-4F7B-AACF-BEC83FD686C8}|TelegramBot.csproj|d:\\yandexdisk\\c#\\telegrambot\\telegrambot\\logger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -18,7 +26,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": 5,
           "Children": [
             {
               "$type": "Bookmark",
@@ -42,26 +50,52 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
+              "Title": "MaoFollower.cs",
+              "DocumentMoniker": "D:\\YandexDisk\\C#\\TelegramBot\\TelegramBot\\MaoFollower.cs",
+              "RelativeDocumentMoniker": "MaoFollower.cs",
+              "ToolTip": "D:\\YandexDisk\\C#\\TelegramBot\\TelegramBot\\MaoFollower.cs",
+              "RelativeToolTip": "MaoFollower.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-09T19:32:11.136Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ChatInfo.cs",
+              "DocumentMoniker": "D:\\YandexDisk\\C#\\TelegramBot\\TelegramBot\\ChatInfo.cs",
+              "RelativeDocumentMoniker": "ChatInfo.cs",
+              "ToolTip": "D:\\YandexDisk\\C#\\TelegramBot\\TelegramBot\\ChatInfo.cs",
+              "RelativeToolTip": "ChatInfo.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-09T19:30:23.327Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
               "Title": "Logger.cs",
               "DocumentMoniker": "D:\\YandexDisk\\C#\\TelegramBot\\TelegramBot\\Logger.cs",
               "RelativeDocumentMoniker": "Logger.cs",
               "ToolTip": "D:\\YandexDisk\\C#\\TelegramBot\\TelegramBot\\Logger.cs",
               "RelativeToolTip": "Logger.cs",
-              "ViewState": "AgIAAAUAAAAAAAAAAAAowC4AAAAFAAAAAAAAAA==",
+              "ViewState": "AgIAACEAAAAAAAAAAAAowAoAAAAVAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-09T15:56:56.603Z",
+              "WhenOpened": "2025-05-09T19:21:36.636Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "Program.cs",
               "DocumentMoniker": "D:\\YandexDisk\\C#\\TelegramBot\\TelegramBot\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
-              "ToolTip": "D:\\YandexDisk\\C#\\TelegramBot\\TelegramBot\\Program.cs*",
-              "RelativeToolTip": "Program.cs*",
-              "ViewState": "AgIAAKoAAAAAAAAAAAAIwLUAAAAiAAAAAAAAAA==",
+              "ToolTip": "D:\\YandexDisk\\C#\\TelegramBot\\TelegramBot\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAAA6wAwAAAA0AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-05-08T17:40:08.894Z",
               "EditorCaption": ""
