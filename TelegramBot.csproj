@@ -13,4 +13,10 @@
     <PackageReference Include="Telegram.Bot" Version="22.5.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="quotations.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

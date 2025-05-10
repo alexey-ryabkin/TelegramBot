@@ -29,3 +29,4 @@ D:\YandexDisk\C#\TelegramBot\TelegramBot\obj\Debug\net8.0\refint\TelegramBot.dll
 D:\YandexDisk\C#\TelegramBot\TelegramBot\obj\Debug\net8.0\TelegramBot.pdb
 D:\YandexDisk\C#\TelegramBot\TelegramBot\obj\Debug\net8.0\TelegramBot.genruntimeconfig.cache
 D:\YandexDisk\C#\TelegramBot\TelegramBot\obj\Debug\net8.0\ref\TelegramBot.dll
+D:\YandexDisk\C#\TelegramBot\TelegramBot\bin\Debug\net8.0\quotations.json

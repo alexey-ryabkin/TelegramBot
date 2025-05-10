@@ -19,6 +19,7 @@ namespace TelegramBot
         // message_id, список слов в этом сообщении
         // слово — слово длинее 4 букв в нижнем регистре
         internal Dictionary<int, string[]> Messages { get; set; } = new();
+        internal MaoFollower maoFollower { get; set; } = new();
         public ChatInfo(long chatId)
         {
             if (Chats.ContainsKey(chatId))
@@ -30,6 +31,8 @@ namespace TelegramBot
             {
                 this.chatId = chatId;
                 Chats.Add(chatId, this);
+                maoFollower = new MaoFollower();
+                Log("Чат {0} добавлен в словарь обслуживаемых чатов.", chatId);
             }
         }
         public void AddMessage(int messageId, string[] words)
@@ -54,7 +57,10 @@ namespace TelegramBot
                         Words.Add(word, 1);
                     }
                 }
-
+                foreach (KeyValuePair<string, int> pair in Words)
+                {
+                    //Log("Слово {0} встречается {1} раз в чате {2}", pair.Key, pair.Value, chatId);
+                }
             }
         }
 
