@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace TelegramBot
+﻿namespace TelegramBot
 {
     internal static class Logger
     {
@@ -43,6 +40,13 @@ namespace TelegramBot
                     Console.WriteLine($"Ошибка записи лога: {ex.Message}");
                 }
             }
+        }
+        /// <summary>
+        /// Логирует сообщение, если программа запущена с ключом verbose. Используется для отладки и тестирования.
+        /// </summary>
+        public static void LogVerbose(string message, params object[] args)
+        {
+            if (TelegramBot.optionsVerbose) Log(message, args);
         }
     }
 }

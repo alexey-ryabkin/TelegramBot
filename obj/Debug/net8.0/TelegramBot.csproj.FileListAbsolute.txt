@@ -2,7 +2,6 @@ D:\YandexDisk\C#\TelegramBot\TelegramBot\bin\Debug\net8.0\TelegramBot.exe
 D:\YandexDisk\C#\TelegramBot\TelegramBot\bin\Debug\net8.0\TelegramBot.deps.json
 D:\YandexDisk\C#\TelegramBot\TelegramBot\bin\Debug\net8.0\TelegramBot.runtimeconfig.json
 D:\YandexDisk\C#\TelegramBot\TelegramBot\bin\Debug\net8.0\TelegramBot.dll
-D:\YandexDisk\C#\TelegramBot\TelegramBot\bin\Debug\net8.0\TelegramBot.pdb
 D:\YandexDisk\C#\TelegramBot\TelegramBot\bin\Debug\net8.0\Microsoft.Extensions.Configuration.dll
 D:\YandexDisk\C#\TelegramBot\TelegramBot\bin\Debug\net8.0\Microsoft.Extensions.Configuration.Abstractions.dll
 D:\YandexDisk\C#\TelegramBot\TelegramBot\bin\Debug\net8.0\Microsoft.Extensions.Configuration.Binder.dll
@@ -26,7 +25,6 @@ D:\YandexDisk\C#\TelegramBot\TelegramBot\obj\Debug\net8.0\TelegramBot.sourcelink
 D:\YandexDisk\C#\TelegramBot\TelegramBot\obj\Debug\net8.0\Telegram.C5E56D06.Up2Date
 D:\YandexDisk\C#\TelegramBot\TelegramBot\obj\Debug\net8.0\TelegramBot.dll
 D:\YandexDisk\C#\TelegramBot\TelegramBot\obj\Debug\net8.0\refint\TelegramBot.dll
-D:\YandexDisk\C#\TelegramBot\TelegramBot\obj\Debug\net8.0\TelegramBot.pdb
 D:\YandexDisk\C#\TelegramBot\TelegramBot\obj\Debug\net8.0\TelegramBot.genruntimeconfig.cache
 D:\YandexDisk\C#\TelegramBot\TelegramBot\obj\Debug\net8.0\ref\TelegramBot.dll
 D:\YandexDisk\C#\TelegramBot\TelegramBot\bin\Debug\net8.0\quotations.json

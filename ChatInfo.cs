@@ -1,25 +1,39 @@
 ﻿using static TelegramBot.Logger;
+using static TelegramBot.QuotationsFinder;
 
 namespace TelegramBot
 {
     /// <summary>
-    /// Чат{Сумма слов, словарь частоты появления слов, словарь ID сообщения+список слов}
+    /// Класс, хранящий информацию о конкретном чате. Доступ ко всем экземплярам возможен чеерз статическое поле Chats.
     /// </summary>
-    /// message_id, chat
     internal class ChatInfo
     {
-        // Словарь чатов, в которых работает бот
+        /// <summary>
+        /// Словарь чатов, в которых работает бот. Ключ — chatId, значение — экземпляр класса ChatInfo.
+        /// </summary>
         internal static Dictionary<long, ChatInfo> Chats { get; set; } = new();
-        // long по требованию API, 64 бита
+        /// <summary>
+        /// Идентификатор чата, тип значения long по требованию библиотеки.
+        /// </summary>
         internal long chatId { get; init; }
-        // текущее набранное количество слов
+        /// <summary>
+        /// Количество слов, которые были обработаны в чате.
+        /// </summary>
         internal int WordCount { get; set; } = 0;
-        // словарь частоты появления слов
+        /// <summary>
+        /// Словарь, в котором ключ — слово, а значение — количество раз, когда это слово встречалось в чате.
+        /// </summary>
         internal Dictionary<string, int> Words { get; set; } = new();
-        // message_id, список слов в этом сообщении
-        // слово — слово длинее 4 букв в нижнем регистре
+        /// <summary>
+        /// Словарь, в котором ключ — идентификатор сообщения, а значение — массив слов, которые были найдены в этом сообщении.
+        /// Слово — слово длинее 4 букв в нижнем регистре.
+        /// </summary>
         internal Dictionary<int, string[]> Messages { get; set; } = new();
-        internal MaoFollower maoFollower { get; set; } = new();
+        /// <summary>
+        /// Экземпляр класса QuotationsFinder, который ищет цитаты в загруженной для него базе цитат.
+        /// </summary>
+        internal QuotationsFinder quotationsFinder { get; set; }
+        internal int MessageThreshold { get; set; } = 100;
         public ChatInfo(long chatId)
         {
             if (Chats.ContainsKey(chatId))
@@ -31,7 +45,7 @@ namespace TelegramBot
             {
                 this.chatId = chatId;
                 Chats.Add(chatId, this);
-                maoFollower = new MaoFollower();
+                quotationsFinder = GetQuotationsFinder();
                 Log("Чат {0} добавлен в словарь обслуживаемых чатов.", chatId);
             }
         }

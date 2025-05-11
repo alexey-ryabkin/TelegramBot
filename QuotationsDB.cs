@@ -6,6 +6,9 @@ using static TelegramBot.Logger;
 
 namespace TelegramBot
 {
+    /// <summary>
+    /// Одна из цитат в коллекции цитат.
+    /// </summary>
     internal class Quotation
     {
         [JsonInclude]

@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "TelegramBot": {
+      "commandName": "Project",
+      "commandLineArgs": "verbose"
+    }
+  }
+}

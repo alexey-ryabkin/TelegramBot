@@ -6,25 +6,59 @@ namespace TelegramBot
         Found = 0,
         NotFound = 1,
         NoSource = 2
-        //Error = 3
     }
     internal readonly record struct SearchResult(SearchStatus status,
                                                  string word,
                                                  string quotation,
                                                  string source,
                                                  string author);
-
-    internal class MaoFollower
+    /// <summary>
+    /// Класс, который ищет цитаты Мао Цзэдуна в базе данных QuotationsDB.
+    /// </summary>
+    internal class QuotationsFinder
     {
-        static Random rng = new Random();
+        internal static Random rng = new Random();
+        internal static Dictionary<string, QuotationsFinder> QuotationsFinders;
+        private static string[] availableQuotationFiles = 
+        { 
+            "quotations.json"
+        };
         internal Quotations quotationsDB;
-        internal MaoFollower()
+        /// <summary>
+        /// Статический конструктор загружает в память все допустимые наборы цитат.
+        /// </summary>
+        static QuotationsFinder()
         {
-            quotationsDB = Quotations.LoadFromJSON("quotations.json");
+            QuotationsFinders = new Dictionary<string, QuotationsFinder>();
+            foreach (string file in availableQuotationFiles)
+            {
+                QuotationsFinders.Add(file, new QuotationsFinder(file));
+            }
         }
-        internal MaoFollower(string filepath)
+        private QuotationsFinder(string filepath)
         {
             quotationsDB = Quotations.LoadFromJSON(filepath);
+        }
+        internal static QuotationsFinder GetQuotationsFinder()
+        {
+            return GetQuotationsFinder(availableQuotationFiles[0]);
+        }
+        /// <summary>
+        /// Метод, который нужно использовать вместо конструктора для экономии места в памяти.
+        /// </summary>
+        /// <param name="filepath">Название файла с цитатами</param>
+        /// <returns></returns>
+        internal static QuotationsFinder GetQuotationsFinder(string filepath)
+        {
+            if (QuotationsFinders.ContainsKey(filepath))
+            {
+                return QuotationsFinders[filepath];
+            }
+            else
+            {
+                Log("Не удалось найти файл {0} в словаре QuotationsFinders. Возвращаю цитаты по умолчанию.", filepath);
+                return QuotationsFinders[availableQuotationFiles[0]];
+            }
         }
         /// <summary>
         /// Ищет в базе данных quotationsDB текущего экземпляра цитату, 
