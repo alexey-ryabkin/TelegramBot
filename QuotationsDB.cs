@@ -99,7 +99,7 @@ namespace TelegramBot
         /// <param name="fileName">Путь, название файла.</param>
         internal void SerializeToJSON(string fileName)
         {
-            var options = new JsonSerializerOptions
+            JsonSerializerOptions options = new JsonSerializerOptions
             {
                 Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
                 WriteIndented = true

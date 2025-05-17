@@ -24,6 +24,7 @@ namespace TelegramBot
             "quotations.json"
         };
         internal Quotations quotationsDB;
+        internal string fileName;
         /// <summary>
         /// Статический конструктор загружает в память все допустимые наборы цитат.
         /// </summary>
@@ -38,6 +39,7 @@ namespace TelegramBot
         private QuotationsFinder(string filepath)
         {
             quotationsDB = Quotations.LoadFromJSON(filepath);
+            fileName = filepath;
         }
         internal static QuotationsFinder GetQuotationsFinder()
         {

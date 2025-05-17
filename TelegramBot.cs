@@ -14,13 +14,37 @@ namespace TelegramBot
     internal partial class TelegramBot
     {
         internal static bool optionsVerbose = false;
-        private static string apikey = string.Empty;
+        private static string apiKey = string.Empty;
         internal static TelegramBotClient? bot = null;
         private static CancellationTokenSource cts = new CancellationTokenSource();
         private static string input = string.Empty;
-        private static string apikeyFilePath = @"\TelegramBot\apikey";
+        private static string docsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), typeof(TelegramBot).Name);
+        private static string apiKeyFilePath = Path.Combine(docsPath, @"apiKey.txt");
+        private static string chatInfoFilePath = Path.Combine(docsPath, @"chatInfo.txt");
+        private static string offsetFilePath = Path.Combine(docsPath, @"offset.txt");
         private static int? offset = null;
 
+        /// <summary>
+        /// Сохраняет текущее состояние программы в файл для последующего в него возвращения.
+        /// </summary>
+        internal static void SaveAllToFile()
+        {
+            ChatInfo.SerializeToJSON(chatInfoFilePath);
+            try
+            {
+                if (!Directory.Exists(docsPath))
+                {
+                    Directory.CreateDirectory(docsPath);
+                }
+
+                File.WriteAllText(offsetFilePath, offset.ToString());
+                Log("Значение offset успешно сохранено в файл: {0}", offsetFilePath);
+            }
+            catch (Exception ex)
+            {
+                Log("Ошибка при сохранении offset в файл: {0}", ex.Message);
+            }
+        }
         /// <summary>
         /// Сохраняет все необходимые данные в структуру ChatInfo. 
         /// Обновляет сумму слов, словарь частоты появления слов, словарь ID сообщения — список слов.
@@ -51,12 +75,12 @@ namespace TelegramBot
         {
             if (chat.WordCount > chat.MessageThreshold)
             {
-                Log("Количество слов в чате {0} превысило порог. Запускаю модуль поиска цитаты.", chat.chatId);
-                SearchResult searchResult = chat.quotationsFinder.Search(chat.Words);
+                Log("Количество слов в чате {0} превысило порог. Запускаю модуль поиска цитаты.", chat.ChatId);
+                SearchResult searchResult = chat.QuotationsFinder.Search(chat.Words);
 
                 if (searchResult.status == SearchStatus.NotFound)
                 {
-                    Task doNotAwait = SendMessage(chat.chatId, "Темы ваших сообщений недостаточно коммунистические. Используйте, пожалуйста, более революционную лексику, иначе к вам не придёт дедушка Мао.");
+                    Task doNotAwait = SendMessage(chat.ChatId, "Темы ваших сообщений недостаточно коммунистические. Используйте, пожалуйста, более революционную лексику, иначе к вам не придёт дедушка Мао.");
                 }
                 else
                 {
@@ -66,7 +90,7 @@ namespace TelegramBot
                         if (message.Value.Contains(searchResult.word))
                         {
                             Log("Найдено слово {0} в сообщении {1}. Составляю цитату и отправляю её в ответ на это сообщение", searchResult.word, message.Key);
-                            Task doNotAwait = SendMessage(chat.chatId,
+                            Task doNotAwait = SendMessage(chat.ChatId,
                                 ComposeMessageWithQuotation(searchResult),
                                 replyParameters: message.Key);
                             messageSourceFound = true;
@@ -76,22 +100,23 @@ namespace TelegramBot
                     if (!messageSourceFound)
                     {
                         Log("Не найдено сообщение, в котором есть слово {0}. Отправляю сообщение без ответа.", searchResult.word);
-                        Task doNotAwait = SendMessage(chat.chatId, ComposeMessageWithQuotation(searchResult));
+                        Task doNotAwait = SendMessage(chat.ChatId, ComposeMessageWithQuotation(searchResult));
                     }
                 }
                 chat.Words.Clear();
                 chat.WordCount = 0;
                 chat.Messages.Clear();
-                Log("Чат {0} очищен от сообщений и слов.", chat.chatId);
+                Log("Чат {0} очищен от сообщений и слов.", chat.ChatId);
             }
         }
         internal static async Task HandleUpdates()
         {
             while (!cts.IsCancellationRequested && bot is not null)
             {
+                Update[]? updates = null;
                 try
                 {
-                    Update[] updates = await bot.GetUpdates(offset, timeout: 2);
+                    updates = await bot.GetUpdates(offset, timeout: 2);
                     foreach (var update in updates)
                     {
                         if (offset is null || offset <= update.Id) offset = update.Id + 1;
@@ -108,6 +133,10 @@ namespace TelegramBot
                 {
                     if (cts.IsCancellationRequested) break;
                     HandleBehaviour(chat);
+                }
+                if (updates is not null && updates.Length != 0)
+                {
+                    SaveAllToFile();
                 }
             }
         }
@@ -130,6 +159,22 @@ namespace TelegramBot
             while (input != "exit")
             {
                 input = GetInput();
+                switch (input)
+                {
+                    case "print chatinfo":
+                        foreach (ChatInfo chat in ChatInfo.Chats.Values)
+                        {
+                            Console.WriteLine(chat);
+                        }
+                        break;
+                    case "load chatinfo":
+                        ChatInfo.LoadFromJSON(chatInfoFilePath);
+                        break;
+                    case "save chatinfo":
+                        ChatInfo.SerializeToJSON(chatInfoFilePath);
+                        break;
+
+                }
             }
             cts.Cancel();
             await mainCycle;

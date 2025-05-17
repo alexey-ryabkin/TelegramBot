@@ -3,19 +3,28 @@
   "WorkspaceRootPath": "D:\\YandexDisk\\C#\\TelegramBot\\TelegramBot\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{0E0E7A6F-24A3-4F7B-AACF-BEC83FD686C8}|TelegramBot.csproj|d:\\yandexdisk\\c#\\telegrambot\\telegrambot\\utils.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0E0E7A6F-24A3-4F7B-AACF-BEC83FD686C8}|TelegramBot.csproj|solutionrelative:utils.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{0E0E7A6F-24A3-4F7B-AACF-BEC83FD686C8}|TelegramBot.csproj|d:\\yandexdisk\\c#\\telegrambot\\telegrambot\\telegrambot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{0E0E7A6F-24A3-4F7B-AACF-BEC83FD686C8}|TelegramBot.csproj|solutionrelative:telegrambot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0E0E7A6F-24A3-4F7B-AACF-BEC83FD686C8}|TelegramBot.csproj|d:\\yandexdisk\\c#\\telegrambot\\telegrambot\\chatinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0E0E7A6F-24A3-4F7B-AACF-BEC83FD686C8}|TelegramBot.csproj|solutionrelative:chatinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{0E0E7A6F-24A3-4F7B-AACF-BEC83FD686C8}|TelegramBot.csproj|d:\\yandexdisk\\c#\\telegrambot\\telegrambot\\telegrambotstartuplogic.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{0E0E7A6F-24A3-4F7B-AACF-BEC83FD686C8}|TelegramBot.csproj|solutionrelative:telegrambotstartuplogic.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{0E0E7A6F-24A3-4F7B-AACF-BEC83FD686C8}|TelegramBot.csproj|d:\\yandexdisk\\c#\\telegrambot\\telegrambot\\utils.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{0E0E7A6F-24A3-4F7B-AACF-BEC83FD686C8}|TelegramBot.csproj|solutionrelative:utils.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{0E0E7A6F-24A3-4F7B-AACF-BEC83FD686C8}|TelegramBot.csproj|d:\\yandexdisk\\c#\\telegrambot\\telegrambot\\quotationsfinder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0E0E7A6F-24A3-4F7B-AACF-BEC83FD686C8}|TelegramBot.csproj|solutionrelative:quotationsfinder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\\u0420\u044F\u0431\u043A\u0438\u043D\\AppData\\Roaming\\Microsoft\\UserSecrets\\19a88c57-14eb-4214-8661-7d6858920e1d\\secrets.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+      "AbsoluteMoniker": "D:0:0:{0E0E7A6F-24A3-4F7B-AACF-BEC83FD686C8}|TelegramBot.csproj|d:\\yandexdisk\\c#\\telegrambot\\telegrambot\\quotationsdb.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0E0E7A6F-24A3-4F7B-AACF-BEC83FD686C8}|TelegramBot.csproj|solutionrelative:quotationsdb.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -25,7 +34,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 7,
+          "SelectedChildIndex": 9,
           "Children": [
             {
               "$type": "Bookmark",
@@ -49,52 +58,80 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 3,
               "Title": "TelegramBotStartupLogic.cs",
               "DocumentMoniker": "D:\\YandexDisk\\C#\\TelegramBot\\TelegramBot\\TelegramBotStartupLogic.cs",
               "RelativeDocumentMoniker": "TelegramBotStartupLogic.cs",
               "ToolTip": "D:\\YandexDisk\\C#\\TelegramBot\\TelegramBot\\TelegramBotStartupLogic.cs",
               "RelativeToolTip": "TelegramBotStartupLogic.cs",
-              "ViewState": "AgIAAEgAAAAAAAAAAAAWwBMAAAAqAAAAAAAAAA==",
+              "ViewState": "AgIAABkAAAAAAAAAAAAwwCYAAABeAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-11T13:16:54.867Z",
+              "WhenOpened": "2025-05-17T14:47:11.785Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
+              "Title": "ChatInfo.cs",
+              "DocumentMoniker": "D:\\YandexDisk\\C#\\TelegramBot\\TelegramBot\\ChatInfo.cs",
+              "RelativeDocumentMoniker": "ChatInfo.cs",
+              "ToolTip": "D:\\YandexDisk\\C#\\TelegramBot\\TelegramBot\\ChatInfo.cs",
+              "RelativeToolTip": "ChatInfo.cs",
+              "ViewState": "AgIAAHkAAAAAAAAAAAAhwI0AAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-17T13:27:07.527Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "QuotationsFinder.cs",
+              "DocumentMoniker": "D:\\YandexDisk\\C#\\TelegramBot\\TelegramBot\\QuotationsFinder.cs",
+              "RelativeDocumentMoniker": "QuotationsFinder.cs",
+              "ToolTip": "D:\\YandexDisk\\C#\\TelegramBot\\TelegramBot\\QuotationsFinder.cs",
+              "RelativeToolTip": "QuotationsFinder.cs",
+              "ViewState": "AgIAAC8AAAAAAAAAAAD4vykAAAAgAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-17T13:26:33.447Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "QuotationsDB.cs",
+              "DocumentMoniker": "D:\\YandexDisk\\C#\\TelegramBot\\TelegramBot\\QuotationsDB.cs",
+              "RelativeDocumentMoniker": "QuotationsDB.cs",
+              "ToolTip": "D:\\YandexDisk\\C#\\TelegramBot\\TelegramBot\\QuotationsDB.cs",
+              "RelativeToolTip": "QuotationsDB.cs",
+              "ViewState": "AgIAAFEAAAAAAAAAAAAuwFgAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-17T13:26:20.855Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
               "Title": "Utils.cs",
               "DocumentMoniker": "D:\\YandexDisk\\C#\\TelegramBot\\TelegramBot\\Utils.cs",
               "RelativeDocumentMoniker": "Utils.cs",
               "ToolTip": "D:\\YandexDisk\\C#\\TelegramBot\\TelegramBot\\Utils.cs",
               "RelativeToolTip": "Utils.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAqwA0AAAAdAAAAAAAAAA==",
+              "ViewState": "AgIAACYAAAAAAAAAAAAowDQAAAA6AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-05-11T12:48:19.737Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "TelegramBot.cs",
               "DocumentMoniker": "D:\\YandexDisk\\C#\\TelegramBot\\TelegramBot\\TelegramBot.cs",
               "RelativeDocumentMoniker": "TelegramBot.cs",
               "ToolTip": "D:\\YandexDisk\\C#\\TelegramBot\\TelegramBot\\TelegramBot.cs",
               "RelativeToolTip": "TelegramBot.cs",
-              "ViewState": "AgIAAHMAAAAAAAAAAAD4v34AAAAtAAAAAAAAAA==",
+              "ViewState": "AgIAAHIAAAAAAAAAAAAwwHkAAABaAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-05-11T12:48:08.827Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "secrets.json",
-              "DocumentMoniker": "C:\\Users\\\u0420\u044F\u0431\u043A\u0438\u043D\\AppData\\Roaming\\Microsoft\\UserSecrets\\19a88c57-14eb-4214-8661-7d6858920e1d\\secrets.json",
-              "ToolTip": "C:\\Users\\\u0420\u044F\u0431\u043A\u0438\u043D\\AppData\\Roaming\\Microsoft\\UserSecrets\\19a88c57-14eb-4214-8661-7d6858920e1d\\secrets.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAALAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-05-11T12:44:39.337Z",
               "EditorCaption": ""
             }
           ]

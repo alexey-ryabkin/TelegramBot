@@ -36,7 +36,7 @@ namespace TelegramBot
                 $"{searchResult.author}. {searchResult.source}.";
             return result;
         }
-        internal async static Task SendMessage(long chatId, string message, ReplyParameters replyParameters)
+        internal async static Task SendMessage(long chatId, string message, ReplyParameters? replyParameters)
         {
             if (bot is null)
             {
@@ -52,21 +52,7 @@ namespace TelegramBot
         }
         internal async static Task SendMessage(long chatId, string message)
         {
-            if (bot is null)
-            {
-                Log("Ошибка: бот не инициализирован.");
-            }
-            else if (chatId != -1001478044575)
-            {
-                Stopwatch stopwatch = Stopwatch.StartNew();
-                await bot.SendMessage(chatId, message);
-                stopwatch.Stop();
-                Log($"Отправка сообщения заняла {stopwatch.ElapsedMilliseconds} миллисекунд.");
-            }
-            else
-            {
-                Log("Сработала защита для Ктапа.");
-            }
+            await SendMessage(chatId, message, null);
         }
     }
 }

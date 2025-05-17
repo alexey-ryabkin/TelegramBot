@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
 using Telegram.Bot;
@@ -12,14 +13,45 @@ namespace TelegramBot
 {
     internal partial class TelegramBot
     {
+        internal static void LoadAllFromFile()
+        {
+            if (File.Exists(chatInfoFilePath))
+            {
+                try
+                {
+                    ChatInfo.LoadFromJSON(chatInfoFilePath);
+                    Log("Данные ChatInfo успешно загружены из файла {0}", chatInfoFilePath);
+                }
+                catch (Exception ex)
+                {
+                    Log("Данные ChatInfo не удалось загрузить из файла {0}\n{1}", chatInfoFilePath, ex);
+                }
+            }
+            if (File.Exists(offsetFilePath))
+            {
+                try
+                {
+                    offset = int.Parse(File.ReadAllText(offsetFilePath));
+                    Log("Данные offset успешно загружены из файла {0}", offsetFilePath);
+                }
+                catch (Exception ex)
+                {
+                    Log("Данные offset не удалось загрузить из файла {0}\n{1}", offsetFilePath, ex);
+                }
+            }
+        }
         private static string StartupTryLoadAPIKeyFromFile()
         {
             try
             {
-                string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), apikeyFilePath);
-                if (File.Exists(filePath))
+                if (File.Exists(apiKeyFilePath))
                 {
-                    return File.ReadAllText(filePath);
+                    string fileContents = File.ReadAllText(apiKeyFilePath);
+                    if (fileContents.Length > 0)
+                    {
+                        Log("Ключ API загружен из документов пользователя. Не забудьте удалить файл, если не хотите его сохранять: {0}", apiKeyFilePath);
+                    }
+                    return fileContents;
                 }
             }
             catch (Exception ex)
@@ -32,10 +64,10 @@ namespace TelegramBot
         {
             try
             {
-                string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), apikeyFilePath);
-                LogVerbose("Сохранение ключа API в файл {0}", filePath);
-                File.WriteAllText(filePath, apikey);
-                Log("Ключ API сохранён в документы пользователя. Не забудьте удалить файл, если не хотите его сохранять\n{0}", filePath);
+                Directory.CreateDirectory(Path.GetDirectoryName(apiKeyFilePath));
+                LogVerbose("Сохранение ключа API в файл {0}", apiKeyFilePath);
+                File.WriteAllText(apiKeyFilePath, apiKey);
+                Log("Ключ API сохранён в документы пользователя. Не забудьте удалить файл, если не хотите его сохранять\n{0}", apiKeyFilePath);
             }
             catch (Exception ex)
             {
@@ -52,27 +84,27 @@ namespace TelegramBot
         private async static Task<int> Startup(string[] args)
         {
             if (args.Contains("verbose")) optionsVerbose = true;
-            apikey = StartupTryLoadAPIKeyFromFile();
-            if (apikey.Length < 1)
+            apiKey = StartupTryLoadAPIKeyFromFile();
+            if (apiKey.Length < 1)
             {
-                apikey = StartupLoadAPIKeyFromSecrets();
-                if (apikey.Length < 1)
+                apiKey = StartupLoadAPIKeyFromSecrets();
+                if (apiKey.Length < 1)
                 {
                     Log("Введите ключ API:");
-                    apikey = GetInput();
-                    if (apikey.Length < 1)
-                    {
-                        Log("Ключ API не был введён. Программа завершает работу с кодом 1.");
-                        return 1;
-                    }
-                    else
-                    {
-                        StartupSaveAPIKeyToFile();
-                    }
+                    apiKey = GetInput();
                 }
                 else
                 {
                     Log("Ключ API загружен из локальных секретов.");
+                }
+                if (apiKey.Length < 1)
+                {
+                    Log("Ключ API не был введён. Программа завершает работу с кодом 1.");
+                    return 1;
+                }
+                else
+                {
+                    StartupSaveAPIKeyToFile();
                 }
             }
             else
@@ -81,7 +113,7 @@ namespace TelegramBot
             }
 
             LogVerbose("Начинается создание связи с ботом.");
-            try { bot = new TelegramBotClient(apikey, cancellationToken: cts.Token); }
+            try { bot = new TelegramBotClient(apiKey, cancellationToken: cts.Token); }
             catch
             {
                 Log("Ключ API некорректен. Программа завершит работу с кодом 2.");
@@ -101,6 +133,13 @@ namespace TelegramBot
                 Console.ReadLine();
                 return 3;
             }
+
+            // Создание каталога с настройками
+            Directory.CreateDirectory(docsPath);
+
+            // Загрузка предыдущего состояния из файла
+            LoadAllFromFile();
+
             // Вся работы выполнена успешно, сообщаю об этом.
             return 0;
         }
