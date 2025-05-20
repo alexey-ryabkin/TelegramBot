@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using static TelegramBot.Logger;
@@ -36,23 +37,35 @@ namespace TelegramBot
                 $"{searchResult.author}. {searchResult.source}.";
             return result;
         }
-        internal async static Task SendMessage(long chatId, string message, ReplyParameters? replyParameters)
+        internal static void SendMessage(long chatId, string message, ReplyParameters? replyParameters)
         {
-            if (bot is null)
+            Task t = new Task(async () =>
             {
-                Log("Ошибка: бот не инициализирован.");
-            }
-            else
-            {
-                Stopwatch stopwatch = Stopwatch.StartNew();
-                await bot.SendMessage(chatId, message, replyParameters: replyParameters);
-                stopwatch.Stop();
-                Log($"Отправка сообщения заняла {stopwatch.ElapsedMilliseconds} миллисекунд.");
-            }
+                if (bot is null)
+                {
+                    Log("Ошибка: бот не инициализирован.");
+                }
+                else
+                {
+                    try
+                    {
+                        Stopwatch stopwatch = Stopwatch.StartNew();
+                        await bot.SendMessage(chatId, message, replyParameters: replyParameters);
+                        stopwatch.Stop();
+                        Log($"Отправка сообщения заняла {stopwatch.ElapsedMilliseconds} миллисекунд.");
+                    }
+                    catch(Exception ex)
+                    {
+                        Log("Отправка сообщения не удалась: " + ex.Message);
+                    }
+                }
+            });
+            t.Start();
+            tasks.Add(t);
         }
-        internal async static Task SendMessage(long chatId, string message)
+        internal static void SendMessage(long chatId, string message)
         {
-            await SendMessage(chatId, message, null);
+            SendMessage(chatId, message, null);
         }
     }
 }

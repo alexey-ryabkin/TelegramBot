@@ -23,6 +23,7 @@ namespace TelegramBot
         private static string chatInfoFilePath = Path.Combine(docsPath, @"chatInfo.txt");
         private static string offsetFilePath = Path.Combine(docsPath, @"offset.txt");
         private static int? offset = null;
+        internal static List<Task> tasks = new List<Task>();
 
         /// <summary>
         /// Сохраняет текущее состояние программы в файл для последующего в него возвращения.
@@ -80,7 +81,7 @@ namespace TelegramBot
 
                 if (searchResult.status == SearchStatus.NotFound)
                 {
-                    Task doNotAwait = SendMessage(chat.ChatId, "Темы ваших сообщений недостаточно коммунистические. Используйте, пожалуйста, более революционную лексику, иначе к вам не придёт дедушка Мао.");
+                    SendMessage(chat.ChatId, "Темы ваших сообщений недостаточно коммунистические. Используйте, пожалуйста, более революционную лексику, иначе к вам не придёт дедушка Мао.");
                 }
                 else
                 {
@@ -90,7 +91,7 @@ namespace TelegramBot
                         if (message.Value.Contains(searchResult.word))
                         {
                             Log("Найдено слово {0} в сообщении {1}. Составляю цитату и отправляю её в ответ на это сообщение", searchResult.word, message.Key);
-                            Task doNotAwait = SendMessage(chat.ChatId,
+                            SendMessage(chat.ChatId,
                                 ComposeMessageWithQuotation(searchResult),
                                 replyParameters: message.Key);
                             messageSourceFound = true;
@@ -100,7 +101,7 @@ namespace TelegramBot
                     if (!messageSourceFound)
                     {
                         Log("Не найдено сообщение, в котором есть слово {0}. Отправляю сообщение без ответа.", searchResult.word);
-                        Task doNotAwait = SendMessage(chat.ChatId, ComposeMessageWithQuotation(searchResult));
+                        SendMessage(chat.ChatId, ComposeMessageWithQuotation(searchResult));
                     }
                 }
                 chat.Words.Clear();
@@ -138,6 +139,7 @@ namespace TelegramBot
                 {
                     SaveAllToFile();
                 }
+                tasks.RemoveAll(t => t.IsCompleted);
             }
         }
         /// <summary>
@@ -178,6 +180,7 @@ namespace TelegramBot
             }
             cts.Cancel();
             await mainCycle;
+            Task.WaitAll(tasks.ToArray());
             Log("Работа программы завершается успешно с кодом 0.");
             return 0;
         }
