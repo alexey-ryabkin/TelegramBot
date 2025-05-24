@@ -22,7 +22,7 @@ namespace TelegramBot
         public static string[] ExtractWords(string input)
         {
             // Регулярное выражение для извлечения слов, содержащих только кириллические буквы
-            Regex regex = new Regex("[а-яА-Я]+");
+            Regex regex = new Regex("[а-яА-ЯёЁ]+");
 
             // Преобразование строки в список слов
             string[] words = regex.Matches(input)
@@ -120,6 +120,7 @@ namespace TelegramBot
 
                 /settings для просмотра и редактирования настроек.
                 /help для текущего сообщения. Но ты его и так видишь.
+                /sendquote для того, чтобы отправить цитату прямо сейчас.
 
                 Городецкий, верни удочку.
                 

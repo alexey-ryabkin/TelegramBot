@@ -143,6 +143,7 @@ namespace TelegramBot
                 new BotCommand("settings", "Показывает значения настроек текущего чата."),
                 new BotCommand("turnonshortening", "Включает сокращение цитат."),
                 new BotCommand("turnoffshortening", "Отключает сокращение цитат."),
+                new BotCommand("sendquote", "Отправляет цитату, не дожидаясь нужного количества слов."),
             };
             await bot.SetMyCommands(botCommands);
 

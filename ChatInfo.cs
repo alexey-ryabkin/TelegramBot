@@ -227,7 +227,7 @@ namespace TelegramBot
                 sb.AppendLine($"  Message ID {message.Key}: [{string.Join(", ", message.Value)}]");
             }
             sb.AppendLine($"Message Threshold: {MessageThreshold}");
-            sb.Append($"QuotationsFileName: {QuotationsFileName}");
+            sb.AppendLine($"QuotationsFileName: {QuotationsFileName}");
             sb.Append($"ShortenQuotes: {ShortenQuotes}");
             return sb.ToString();
         }

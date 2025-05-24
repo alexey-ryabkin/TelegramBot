@@ -92,53 +92,61 @@ namespace TelegramBot
                 case string match when Regex.IsMatch(match.ToLower(), @"^/turnoffshortening(@littleryabot)?$"):
                     ChatInfo.TurnOffShortening(msg.Chat.Id);
                     break;
+                case string match when Regex.IsMatch(match.ToLower(), @"^/sendquote(@littleryabot)?$"):
+                    Log("Отправка цитаты в чате {0} запущена вручную.", msg.Chat);
+                    SendQuote(ChatInfo.Chats[msg.Chat.Id]);
+                    break;
             }
+        }
+        internal static void SendQuote(ChatInfo chat)
+        {
+            SearchResult searchResult = chat.QuotationsFinder.Search(chat.Words);
+
+            switch (searchResult.status)
+            {
+                case SearchStatus.NotFound:
+                    SendMessage(chat.ChatId, "Темы ваших сообщений недостаточно коммунистические. Используйте, пожалуйста, более революционную лексику, иначе к вам не придёт дедушка Мао.");
+                    break;
+                case SearchStatus.NoSource:
+                    int index = Array.IndexOf(QuotationsFinder.availableQuotationFiles, ChatInfo.Chats[chat.ChatId].QuotationsFileName);
+                    string description = QuotationsFinder.availableQuotationFileDescriptions[index];
+                    SendMessage(chat.ChatId, $"Файл «{description}» пока что не готов. Выберите другой файл.");
+                    break;
+                case SearchStatus.Found:
+                    bool messageSourceFound = false;
+                    foreach (KeyValuePair<int, string[]> message in chat.Messages)
+                    {
+                        if (message.Value.Contains(searchResult.word))
+                        {
+                            Log("Найдено слово {0} в сообщении {1}. Составляю цитату и отправляю её в ответ на это сообщение", searchResult.word, message.Key);
+                            SendMessage(chat.ChatId,
+                                ComposeMessageWithQuotation(searchResult, chat.ChatId),
+                                replyParameters: message.Key);
+                            messageSourceFound = true;
+                            break;
+                        }
+                    }
+                    if (!messageSourceFound)
+                    {
+                        Log("Не найдено сообщение, в котором есть слово {0}. Отправляю сообщение без ответа.", searchResult.word);
+                        SendMessage(chat.ChatId, ComposeMessageWithQuotation(searchResult, chat.ChatId));
+                    }
+                    break;
+                default:
+                    Log("!!!!!!Недостижимый код!!!!!");
+                    break;
+            }
+            chat.Words.Clear();
+            chat.WordCount = 0;
+            chat.Messages.Clear();
+            Log("Чат {0} очищен от сообщений и слов.", chat.ChatId);
         }
         internal static void HandleBehaviour(ChatInfo chat)
         {
             if (chat.WordCount > chat.MessageThreshold)
             {
                 Log("Количество слов в чате {0} превысило порог. Запускаю модуль поиска цитаты.", chat.ChatId);
-                SearchResult searchResult = chat.QuotationsFinder.Search(chat.Words);
-
-                switch (searchResult.status)
-                {
-                    case SearchStatus.NotFound:
-                        SendMessage(chat.ChatId, "Темы ваших сообщений недостаточно коммунистические. Используйте, пожалуйста, более революционную лексику, иначе к вам не придёт дедушка Мао.");
-                        break;
-                    case SearchStatus.NoSource:
-                        int index = Array.IndexOf(QuotationsFinder.availableQuotationFiles, ChatInfo.Chats[chat.ChatId].QuotationsFileName);
-                        string description = QuotationsFinder.availableQuotationFileDescriptions[index];
-                        SendMessage(chat.ChatId, $"Файл «{description}» пока что не готов. Выберите другой файл.");
-                        break;
-                    case SearchStatus.Found:
-                        bool messageSourceFound = false;
-                        foreach (KeyValuePair<int, string[]> message in chat.Messages)
-                        {
-                            if (message.Value.Contains(searchResult.word))
-                            {
-                                Log("Найдено слово {0} в сообщении {1}. Составляю цитату и отправляю её в ответ на это сообщение", searchResult.word, message.Key);
-                                SendMessage(chat.ChatId,
-                                    ComposeMessageWithQuotation(searchResult, chat.ChatId),
-                                    replyParameters: message.Key);
-                                messageSourceFound = true;
-                                break;
-                            }
-                        }
-                        if (!messageSourceFound)
-                        {
-                            Log("Не найдено сообщение, в котором есть слово {0}. Отправляю сообщение без ответа.", searchResult.word);
-                            SendMessage(chat.ChatId, ComposeMessageWithQuotation(searchResult, chat.ChatId));
-                        }
-                        break;
-                    default:
-                        Log("!!!!!!Недостижимый код!!!!!");
-                        break;
-                }
-                chat.Words.Clear();
-                chat.WordCount = 0;
-                chat.Messages.Clear();
-                Log("Чат {0} очищен от сообщений и слов.", chat.ChatId);
+                SendQuote(chat);
             }
         }
         internal static async Task HandleUpdates()
@@ -160,6 +168,10 @@ namespace TelegramBot
                 catch (TaskCanceledException)
                 {
                     // Всё правильно
+                }
+                catch (Telegram.Bot.Exceptions.RequestException ex)
+                {
+                    Log("Произошла ошибка:\n{0}", ex);
                 }
                 foreach (ChatInfo chat in ChatInfo.Chats.Values)
                 {
