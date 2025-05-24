@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 using Telegram.Bot.Types;
 using static TelegramBot.Logger;
 using static TelegramBot.QuotationsFinder;
+using static TelegramBot.Utils;
 
 namespace TelegramBot
 {
@@ -45,7 +46,9 @@ namespace TelegramBot
         [JsonInclude]
         internal int MessageThreshold { get; set; } = 100;
         [JsonInclude]
-        internal string QuotationsFileName {  get; set; }
+        internal string QuotationsFileName { get; set; }
+        [JsonInclude]
+        internal bool ShortenQuotes { get; set; }
         public ChatInfo(long ChatId)
         {
             if (Chats.ContainsKey(ChatId))
@@ -59,6 +62,7 @@ namespace TelegramBot
                 Chats.Add(ChatId, this);
                 QuotationsFinder = GetQuotationsFinder();
                 QuotationsFileName = QuotationsFinder.fileName;
+                ShortenQuotes = true;
                 Log("Чат {0} добавлен в словарь обслуживаемых чатов.", ChatId);
             }
         }
@@ -68,7 +72,8 @@ namespace TelegramBot
             Dictionary<string, int> Words, 
             Dictionary<int, string[]> Messages, 
             int MessageThreshold, 
-            string QuotationsFileName)
+            string QuotationsFileName,
+            bool ShortenQuotes)
         {
             if (Chats.ContainsKey(ChatId))
             {
@@ -85,6 +90,7 @@ namespace TelegramBot
                 Chats.Add(ChatId, this);
                 QuotationsFinder = GetQuotationsFinder(QuotationsFileName);
                 this.QuotationsFileName = QuotationsFinder.fileName;
+                this.ShortenQuotes = ShortenQuotes;
                 Log("Чат {0} загружен с диска в словарь обслуживаемых чатов.", ChatId);
             }
         }
@@ -122,13 +128,20 @@ namespace TelegramBot
         /// <param name="fileName">Путь, название файла.</param>
         internal static void SerializeToJSON(string fileName)
         {
-            JsonSerializerOptions options = new JsonSerializerOptions
+            try
             {
-                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-                WriteIndented = true
-            };
-            string jsonString = JsonSerializer.Serialize(Chats.Values, options);
-            File.WriteAllText(fileName, jsonString);
+                JsonSerializerOptions options = new JsonSerializerOptions
+                {
+                    Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+                    WriteIndented = true
+                };
+                string jsonString = JsonSerializer.Serialize(Chats.Values, options);
+                File.WriteAllText(fileName, jsonString);
+            }
+            catch
+            {
+                Log("Сохранение ChatInfo в файл {0} не удалось.", fileName);
+            }
         }
         internal static void LoadFromJSON(string fileName)
         {
@@ -141,6 +154,61 @@ namespace TelegramBot
             catch
             {
                 Log("Загрузка ChatInfo из файла {0} не удалась.", fileName);
+            }
+        }
+        // TODO Настройки
+        internal static void SetMessageThreshold(long chatId, string threshold)
+        {
+            if (Chats.ContainsKey(chatId))
+            {
+                if (Int32.TryParse(threshold, out int thresholdParsed) && thresholdParsed > 0)
+                {
+                    try
+                    {
+                        Chats[chatId].MessageThreshold = thresholdParsed;
+                        SendMessage(chatId, $"Длина периода Мао успешно установлена. Теперь Мао будет говорить раз в {threshold} слов.");
+                        return;
+                    }
+                    catch(Exception ex)
+                    {
+                        Log("В SetMessageThreshold передано корректное значение {0}, но что-то пошло не так.", threshold);
+                        SendMessage(chatId, $"Не получилось назначить настройке значение {threshold}. Попробуйте другое.");
+                    }
+                }
+                Log("В SetMessageThreshold передано некорректное значение {0}! Отвечаю грубостью.", threshold);
+                SendMessage(chatId, $"Кто-то глупенький)) {threshold} — не натуральное число. Попробуй ещё раз.");
+            }
+            else
+            {
+                Log("По идее недостижимый код, чата {0} нет в списке чатов в момент смены настройки.", chatId);
+            }
+        }
+        internal static void SetQuotationsFile(long chatId, string fileNumber)
+        {
+            if (Chats.ContainsKey(chatId))
+            {
+                if (Int32.TryParse(fileNumber, out int fileNumberParsed) && fileNumberParsed >= 0)
+                {
+                    try
+                    {
+                        Chats[chatId].QuotationsFinder = GetQuotationsFinder(availableQuotationFiles[fileNumberParsed]);
+                        Chats[chatId].QuotationsFileName = availableQuotationFiles[fileNumberParsed];
+
+                        SendMessage(chatId, $"Файл цитат успешно установлен. Теперь будут говорить {availableQuotationFileDescriptions[fileNumberParsed]}.");
+                        return;
+                    }
+                    catch (Exception ex)
+                    {
+                        Log("В SetQuotationsFile передано корректное значение {0}, но что-то пошло не так.", fileNumber);
+                        SendMessage(chatId, $"Не получилось назначить настройке значение {fileNumber}. Попробуйте указанное в команде /help.");
+                    }
+                }
+                Log("В SetQuotationsFile передано некорректное значение {0}! Отвечаю грубостью.", fileNumber);
+                SendMessage(chatId, $"Кто-то глупенький)) {fileNumber} — не целое положительное число. Попробуй ещё раз.");
+            }
+            else
+            {
+                Log($"{new string('!', 30)}По идее недостижимый код, чата {0} нет в списке чатов в момент смены настройки.", chatId);
             }
         }
         public override string ToString()
@@ -160,7 +228,50 @@ namespace TelegramBot
             }
             sb.AppendLine($"Message Threshold: {MessageThreshold}");
             sb.Append($"QuotationsFileName: {QuotationsFileName}");
+            sb.Append($"ShortenQuotes: {ShortenQuotes}");
             return sb.ToString();
+        }
+
+        internal static void TurnOnShortening(long chatId)
+        {
+            if (Chats.ContainsKey(chatId))
+            {
+                ChatInfo chat = Chats[chatId];
+                if (chat.ShortenQuotes)
+                {
+                    SendMessage(chatId, $"Сокращение цитат уже включено.");
+                }
+                else
+                {
+                    chat.ShortenQuotes = true;
+                    SendMessage(chatId, $"Сокращение цитат успешно включено. Теперь Мао будет говорить поменьше.");
+                }
+            }
+            else
+            {
+                Log("По идее недостижимый код, чата {0} нет в списке чатов в момент смены настройки.", chatId);
+            }
+        }
+
+        internal static void TurnOffShortening(long chatId)
+        {
+            if (Chats.ContainsKey(chatId))
+            {
+                ChatInfo chat = Chats[chatId];
+                if (chat.ShortenQuotes)
+                {
+                    chat.ShortenQuotes = false;
+                    SendMessage(chatId, $"Сокращение цитат успешно выключено. Теперь можно будет насладиться великой мыслью выликого человека.");
+                }
+                else
+                {
+                    SendMessage(chatId, $"Сокращение цитат уже выключено.");
+                }
+            }
+            else
+            {
+                Log("По идее недостижимый код, чата {0} нет в списке чатов в момент смены настройки.", chatId);
+            }
         }
     }
 }

@@ -71,6 +71,28 @@ namespace TelegramBot
                 msg.Chat, 
                 words.Length, 
                 ChatInfo.Chats[chatId].WordCount);
+
+            switch (text)
+            {
+                case string match when Regex.IsMatch(match.ToLower(), @"^/maoperiod(@littleryabot)?\s+-?\d+$"):
+                    ChatInfo.SetMessageThreshold(msg.Chat.Id, Regex.Match(text, @"-?\d+").Value);
+                    break;
+                case string match when Regex.IsMatch(match.ToLower(), @"^/quotationsfile(@littleryabot)?\s+-?\d+$"):
+                    ChatInfo.SetQuotationsFile(msg.Chat.Id, Regex.Match(text, @"-?\d+").Value);
+                    break;
+                case string match when Regex.IsMatch(match.ToLower(), @"^/help(@littleryabot)?$"):
+                    SendHelp(msg.Chat.Id);
+                    break;
+                case string match when Regex.IsMatch(match.ToLower(), @"^/settings(@littleryabot)?$"):
+                    SendSettings(msg.Chat.Id);
+                    break;
+                case string match when Regex.IsMatch(match.ToLower(), @"^/turnonshortening(@littleryabot)?$"):
+                    ChatInfo.TurnOnShortening(msg.Chat.Id);
+                    break;
+                case string match when Regex.IsMatch(match.ToLower(), @"^/turnoffshortening(@littleryabot)?$"):
+                    ChatInfo.TurnOffShortening(msg.Chat.Id);
+                    break;
+            }
         }
         internal static void HandleBehaviour(ChatInfo chat)
         {
@@ -79,30 +101,39 @@ namespace TelegramBot
                 Log("Количество слов в чате {0} превысило порог. Запускаю модуль поиска цитаты.", chat.ChatId);
                 SearchResult searchResult = chat.QuotationsFinder.Search(chat.Words);
 
-                if (searchResult.status == SearchStatus.NotFound)
+                switch (searchResult.status)
                 {
-                    SendMessage(chat.ChatId, "Темы ваших сообщений недостаточно коммунистические. Используйте, пожалуйста, более революционную лексику, иначе к вам не придёт дедушка Мао.");
-                }
-                else
-                {
-                    bool messageSourceFound = false;
-                    foreach (KeyValuePair<int, string[]> message in chat.Messages)
-                    {
-                        if (message.Value.Contains(searchResult.word))
+                    case SearchStatus.NotFound:
+                        SendMessage(chat.ChatId, "Темы ваших сообщений недостаточно коммунистические. Используйте, пожалуйста, более революционную лексику, иначе к вам не придёт дедушка Мао.");
+                        break;
+                    case SearchStatus.NoSource:
+                        int index = Array.IndexOf(QuotationsFinder.availableQuotationFiles, ChatInfo.Chats[chat.ChatId].QuotationsFileName);
+                        string description = QuotationsFinder.availableQuotationFileDescriptions[index];
+                        SendMessage(chat.ChatId, $"Файл «{description}» пока что не готов. Выберите другой файл.");
+                        break;
+                    case SearchStatus.Found:
+                        bool messageSourceFound = false;
+                        foreach (KeyValuePair<int, string[]> message in chat.Messages)
                         {
-                            Log("Найдено слово {0} в сообщении {1}. Составляю цитату и отправляю её в ответ на это сообщение", searchResult.word, message.Key);
-                            SendMessage(chat.ChatId,
-                                ComposeMessageWithQuotation(searchResult),
-                                replyParameters: message.Key);
-                            messageSourceFound = true;
-                            break;
+                            if (message.Value.Contains(searchResult.word))
+                            {
+                                Log("Найдено слово {0} в сообщении {1}. Составляю цитату и отправляю её в ответ на это сообщение", searchResult.word, message.Key);
+                                SendMessage(chat.ChatId,
+                                    ComposeMessageWithQuotation(searchResult, chat.ChatId),
+                                    replyParameters: message.Key);
+                                messageSourceFound = true;
+                                break;
+                            }
                         }
-                    }
-                    if (!messageSourceFound)
-                    {
-                        Log("Не найдено сообщение, в котором есть слово {0}. Отправляю сообщение без ответа.", searchResult.word);
-                        SendMessage(chat.ChatId, ComposeMessageWithQuotation(searchResult));
-                    }
+                        if (!messageSourceFound)
+                        {
+                            Log("Не найдено сообщение, в котором есть слово {0}. Отправляю сообщение без ответа.", searchResult.word);
+                            SendMessage(chat.ChatId, ComposeMessageWithQuotation(searchResult, chat.ChatId));
+                        }
+                        break;
+                    default:
+                        Log("!!!!!!Недостижимый код!!!!!");
+                        break;
                 }
                 chat.Words.Clear();
                 chat.WordCount = 0;

@@ -8,6 +8,7 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using static TelegramBot.Logger;
 using static TelegramBot.Utils;
+using static TelegramBot.QuotationsFinder;
 
 namespace TelegramBot
 {
@@ -133,6 +134,17 @@ namespace TelegramBot
                 Console.ReadLine();
                 return 3;
             }
+
+            BotCommand[] botCommands =
+            {
+                new BotCommand("maoperiod", "Назначает число слов, при достижении которых бот будет подбирать цитату. Параметр — целое положительное число, например, /LittleRyaBotMaoPeriod 100."),
+                new BotCommand("quotationsfile", "Назначает используемый набор цитат. " + quotsDescriptions),
+                new BotCommand("help", "Описывает себя."),
+                new BotCommand("settings", "Показывает значения настроек текущего чата."),
+                new BotCommand("turnonshortening", "Включает сокращение цитат."),
+                new BotCommand("turnoffshortening", "Отключает сокращение цитат."),
+            };
+            await bot.SetMyCommands(botCommands);
 
             // Создание каталога с настройками
             Directory.CreateDirectory(docsPath);

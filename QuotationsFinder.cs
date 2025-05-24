@@ -19,10 +19,17 @@ namespace TelegramBot
     {
         internal static Random rng = new Random();
         internal static Dictionary<string, QuotationsFinder> QuotationsFinders;
-        private static string[] availableQuotationFiles = 
-        { 
-            "quotations.json"
+        internal static string[] availableQuotationFiles =
+        {
+            "quotations.json",
+            "quotations1.json"
         };
+        internal static string[] availableQuotationFileDescriptions = 
+        { 
+            "Цитаты Мао Цзедуна",
+            "Цитаты Владимира Путина"
+        };
+        internal static string quotsDescriptions;
         internal Quotations quotationsDB;
         internal string fileName;
         /// <summary>
@@ -34,6 +41,12 @@ namespace TelegramBot
             foreach (string file in availableQuotationFiles)
             {
                 QuotationsFinders.Add(file, new QuotationsFinder(file));
+            }
+
+            quotsDescriptions = $"0 — {availableQuotationFileDescriptions[0]}";
+            for (int i = 1;  i < availableQuotationFileDescriptions.Length; i++)
+            {
+                quotsDescriptions += $"; {i} — {availableQuotationFileDescriptions[i]}";
             }
         }
         private QuotationsFinder(string filepath)
