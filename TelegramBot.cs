@@ -22,8 +22,10 @@ namespace TelegramBot
         private static string apiKeyFilePath = Path.Combine(docsPath, @"apiKey.txt");
         private static string chatInfoFilePath = Path.Combine(docsPath, @"chatInfo.txt");
         private static string offsetFilePath = Path.Combine(docsPath, @"offset.txt");
+        private static string msgDumpFilePath = Path.Combine(docsPath, @"msgdump.txt");
         private static int? offset = null;
         internal static List<Task> tasks = new List<Task>();
+        //private static bool _isPaused = false;
 
         /// <summary>
         /// Сохраняет текущее состояние программы в файл для последующего в него возвращения.
@@ -185,6 +187,60 @@ namespace TelegramBot
                 tasks.RemoveAll(t => t.IsCompleted);
             }
         }
+        /*
+        internal static async Task WriteRecentMessagesToFile(long chatId, int? offsetCustom)
+        {
+            if (bot is not null)
+            {
+                Update[]? updates = null;
+                try
+                {
+                    updates = await bot.GetUpdates(-1, timeout: 1);
+                    updates = await bot.GetUpdates(- offsetCustom, timeout: 2);
+                    foreach (var update in updates)
+                    {
+                        if (update.Message is not null)
+                        {
+                            long msgChatId = update.Message.Chat.Id;
+                            string text;
+                            switch (update.Message)
+                            {
+                                case { Text: { } temp }: text = temp; break;
+                                case { Caption: { } temp }: text = temp; break;
+                                default:
+                                    Log("Получено обновление, в котором нет текста: {0}", update.Message.Type.ToString() ?? "NULL");
+                                    return;
+                            }
+                            if (msgChatId == chatId)
+                            {
+                                try
+                                {
+                                    if (!Directory.Exists(docsPath))
+                                    {
+                                        Directory.CreateDirectory(docsPath);
+                                    }
+                                    File.AppendAllText(msgDumpFilePath, text + Environment.NewLine);
+                                }
+                                catch (Exception ex)
+                                {
+                                    Log("Ошибка при сохранении offset в файл: {0}", ex.Message);
+                                }
+                            }
+                        }
+                        if (cts.IsCancellationRequested) break;
+                    }
+                }
+                catch (TaskCanceledException)
+                {
+                    // Всё правильно
+                }
+                catch (Telegram.Bot.Exceptions.RequestException ex)
+                {
+                    Log("Произошла ошибка:\n{0}", ex);
+                }
+            }
+        }
+        */
         /// <summary>
         /// 
         /// </summary>
@@ -218,6 +274,14 @@ namespace TelegramBot
                     case "save chatinfo":
                         ChatInfo.SerializeToJSON(chatInfoFilePath);
                         break;
+                    /*
+                    case "get msgs":
+                        _isPaused = true;
+                        Thread.Sleep(2000);
+                        await WriteRecentMessagesToFile(-1001478044575, 500);
+                        _isPaused = false;
+                        break;
+                    */
 
                 }
             }
