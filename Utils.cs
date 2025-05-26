@@ -1,10 +1,9 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using static System.Net.Mime.MediaTypeNames;
+using static TelegramBot.ChatInfo;
 using static TelegramBot.Logger;
 using static TelegramBot.TelegramBot;
 
@@ -129,23 +128,108 @@ namespace TelegramBot
         }
         internal static void SendSettings(long chatId)
         {
-            ChatInfo chat = ChatInfo.Chats[chatId];
+            ChatInfo chat = Chats[chatId];
+            StringBuilder sb = new StringBuilder();
+            foreach (RandomAction key in chat.RandomActionCoefficients.Keys)
+            {
+                // /lazyness 40 — Ничего не делать
+                sb.AppendLine($"/{RandomActionSettingCommand[key]} " +
+                    $"{chat.RandomActionCoefficients[key]} — " +
+                    $"{RandomActionDescriptions[key]}");
+            }
+            string randomActionsDescriptions = sb.ToString();
+
+
             string message = string.Format(
-                "Период Мао: {0} уникальных длинных слов. Текущее количество слов: {1}.\n" +
-                "/maoperiod@littleryabot N,\n" +
-                "где N — натуральное число.\n\n" +
-                "Набор цитат: {2}.\n" +
-                "/quotationsfile@littleryabot N,\n" +
-                "где N — номер файла.\n" +
-                "{3}.\n\n" +
-                (chat.ShortenQuotes ? "Цитаты сокращаются до одного предложения.\n" : "Цитаты постятся полностью.\n") +
-                (chat.ShortenQuotes ? "/turnoffshortening — отключить сокращение." : "/turnonshortening — включить сокращение."),
-                chat.MessageThreshold,
-                chat.WordCount,
-                QuotationsFinder.availableQuotationFileDescriptions[Array.IndexOf(QuotationsFinder.availableQuotationFiles, chat.QuotationsFileName)],
-                QuotationsFinder.quotsDescriptions
-                );
+            "Коэффициенты лености:\n" +
+            "{0}\n" +
+            "где N — натуральное число.\n\n" +
+            "Набор цитат: {1}.\n" +
+            "/quotationsfile N,\n" +
+            "где N — номер файла.\n" +
+            "{2}.\n\n" +
+            (chat.ShortenQuotes ? "Цитаты сокращаются до одного предложения.\n" : "Цитаты постятся полностью.\n") +
+            (chat.ShortenQuotes ? "/turnoffshortening — отключить сокращение.\n\n" : "/turnonshortening — включить сокращение.\n\n") +
+            $"/timeout {chat.TimeoutSec} — время между сообщениями, секунд.",
+            randomActionsDescriptions,
+            QuotationsFinder.availableQuotationFileDescriptions[chat.QuotationsFileNumber],
+            QuotationsFinder.quotsDescriptions
+            );
             SendMessage(chatId, message);
+        }
+        /// <summary>
+        /// Сохраняет текущее состояние программы в файл для последующего в него возвращения.
+        /// </summary>
+        internal static void SaveAllToFile()
+        {
+            SerializeToJSON(chatInfoFilePath);
+            try
+            {
+                if (!Directory.Exists(docsPath))
+                {
+                    Directory.CreateDirectory(docsPath);
+                }
+
+                File.WriteAllText(offsetFilePath, offset.ToString());
+                LogVerbose("Значение offset успешно сохранено в файл: {0}", offsetFilePath);
+            }
+            catch (Exception ex)
+            {
+                Log("Ошибка при сохранении offset в файл: {0}", ex.Message);
+            }
+        }
+        internal static void SendMarkov(ChatInfo chat)
+        {
+            try
+            {
+                Random rng = new Random();
+                SendMessage(chat.ChatId, chat.MarkovMessages.CreateText(rng.Next(20) + 1));
+            }
+            catch(Exception ex)
+            {
+                Log(ex.ToString());
+            }
+        }
+        internal static void SendQuote(ChatInfo chat)
+        {
+            SearchResult searchResult = chat.QuotationsFinder.Search(chat.Words);
+
+            switch (searchResult.status)
+            {
+                case SearchStatus.NotFound:
+                    SendMessage(chat.ChatId, $"Вы недостаточно много изучаете {QuotationsFinder.availableQuotationFileDescriptions[chat.QuotationsFileNumber]}, поэтому не получите крутую тематическую цитату.");
+                    break;
+                case SearchStatus.NoSource:
+                    string description = QuotationsFinder.availableQuotationFileDescriptions[chat.QuotationsFileNumber];
+                    SendMessage(chat.ChatId, $"Файл «{description}» пока что не готов. Выберите другой файл.");
+                    break;
+                case SearchStatus.Found:
+                    bool messageSourceFound = false;
+                    foreach (KeyValuePair<int, string[]> message in chat.Messages)
+                    {
+                        if (message.Value.Contains(searchResult.word))
+                        {
+                            Log("Найдено слово {0} в сообщении {1}. Составляю цитату и отправляю её в ответ на это сообщение", searchResult.word, message.Key);
+                            SendMessage(chat.ChatId,
+                                ComposeMessageWithQuotation(searchResult, chat.ChatId),
+                                replyParameters: message.Key);
+                            messageSourceFound = true;
+                            break;
+                        }
+                    }
+                    if (!messageSourceFound)
+                    {
+                        Log("Не найдено сообщение, в котором есть слово {0}. Отправляю сообщение без ответа.", searchResult.word);
+                        SendMessage(chat.ChatId, ComposeMessageWithQuotation(searchResult, chat.ChatId));
+                    }
+                    break;
+                default:
+                    Log("!!!!!!Недостижимый код!!!!!");
+                    break;
+            }
+            chat.Words.Clear();
+            chat.Messages.Clear();
+            Log("Чат {0} очищен от сообщений и слов.", chat.ChatId);
         }
     }
 }

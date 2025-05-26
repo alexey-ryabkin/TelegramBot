@@ -1,4 +1,6 @@
-﻿using KaimiraGames;
+﻿using System.Text.Json.Serialization;
+using KaimiraGames;
+using static TelegramBot.Logger;
 
 namespace TelegramBot
 {
@@ -27,9 +29,12 @@ namespace TelegramBot
     /// </summary>
     public class MarkovChain
     {
+        [JsonInclude]
         private Dictionary<string, Dictionary<string, int>> _wordMatrix;
         // Два параметра для корректной печати
+        [JsonInclude]
         private Dictionary<string, int> maxValueLength;
+        [JsonInclude]
         private int maxKeyLength;
         public MarkovChain()
         {
@@ -50,7 +55,7 @@ namespace TelegramBot
                 //Stopwatch stopwatch = Stopwatch.StartNew();
                 _add(words[i - 1], words[i]);
                 //stopwatch.Stop();
-                //Console.WriteLine("{2, 10} тиков: {0} {1}", words[i - 1], words[i], stopwatch.ElapsedTicks);
+                //Log("{2, 10} тиков: {0} {1}", words[i - 1], words[i], stopwatch.ElapsedTicks);
             }
         }
         /// <summary>
@@ -159,7 +164,7 @@ namespace TelegramBot
             {
                 word = _next(word);
                 result += " " + word;
-                //Console.WriteLine("Слово {0} из {1}.", i, size);
+                //Log("Слово {0} из {1}.", i, size);
             }
             return result;
         }
@@ -185,7 +190,7 @@ namespace TelegramBot
                     maxValueLength = this.maxValueLength[keys[j]];
                     format = $"|{{0,{maxValueLength}}}";
                     result += string.Format(format, _wordMatrix[keys[i]][keys[j]]);
-                    Console.WriteLine("Строка {0}, столбец {1} из {2}", i, j, l);
+                    Log("Строка {0}, столбец {1} из {2}", i, j, l);
                 }
                 result += string.Format("|" + Environment.NewLine);
             }

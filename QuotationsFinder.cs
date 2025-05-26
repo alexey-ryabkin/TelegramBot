@@ -31,7 +31,7 @@ namespace TelegramBot
         };
         internal static string quotsDescriptions;
         internal Quotations quotationsDB;
-        internal string fileName;
+        internal int fileNumber;
         /// <summary>
         /// Статический конструктор загружает в память все допустимые наборы цитат.
         /// </summary>
@@ -46,13 +46,13 @@ namespace TelegramBot
             quotsDescriptions = $"0 — {availableQuotationFileDescriptions[0]}";
             for (int i = 1;  i < availableQuotationFileDescriptions.Length; i++)
             {
-                quotsDescriptions += $"; {i} — {availableQuotationFileDescriptions[i]}";
+                quotsDescriptions += $";\n{i} — {availableQuotationFileDescriptions[i]}";
             }
         }
         private QuotationsFinder(string filepath)
         {
             quotationsDB = Quotations.LoadFromJSON(filepath);
-            fileName = filepath;
+            fileNumber = Array.IndexOf(availableQuotationFiles, filepath);
         }
         internal static QuotationsFinder GetQuotationsFinder()
         {

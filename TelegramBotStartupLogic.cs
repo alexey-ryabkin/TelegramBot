@@ -137,13 +137,17 @@ namespace TelegramBot
 
             BotCommand[] botCommands =
             {
-                new BotCommand("maoperiod", "Назначает число слов, при достижении которых бот будет подбирать цитату. Параметр — целое положительное число, например, /LittleRyaBotMaoPeriod 100."),
-                new BotCommand("quotationsfile", "Назначает используемый набор цитат. " + quotsDescriptions),
+                //new BotCommand("maoperiod", "Назначает число слов, при достижении которых бот будет подбирать цитату. Параметр — целое положительное число, например, /maoperiod 100."),
+                new BotCommand("quotationsfile", "Выбор цитат."),
                 new BotCommand("help", "Описывает себя."),
-                new BotCommand("settings", "Показывает значения настроек текущего чата."),
+                new BotCommand("settings", "Показать настройки."),
                 new BotCommand("turnonshortening", "Включает сокращение цитат."),
                 new BotCommand("turnoffshortening", "Отключает сокращение цитат."),
-                new BotCommand("sendquote", "Отправляет цитату, не дожидаясь нужного количества слов."),
+                new BotCommand("sendquote", "Отправляет цитату резко."),
+                new BotCommand("lazyness", "Чем больше леность, тем реже действие."),
+                new BotCommand("quotecoeff", "Чем больше коэффициент, тем чаще действие."),
+                new BotCommand("msgcoeff", "Чем больше коэффициент, тем чаще действие."),
+                new BotCommand("timeout", "Slow mode бота."),
             };
             await bot.SetMyCommands(botCommands);
 
