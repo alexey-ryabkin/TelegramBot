@@ -6,7 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using static TelegramBot.Logger;
+using static Logger.Logger;
 using static TelegramBot.Utils;
 using static TelegramBot.QuotationsFinder;
 
@@ -18,15 +18,7 @@ namespace TelegramBot
         {
             if (File.Exists(chatInfoFilePath))
             {
-                try
-                {
-                    ChatInfo.LoadFromJSON(chatInfoFilePath);
-                    Log("Данные ChatInfo успешно загружены из файла {0}", chatInfoFilePath);
-                }
-                catch (Exception ex)
-                {
-                    Log("Данные ChatInfo не удалось загрузить из файла {0}\n{1}", chatInfoFilePath, ex);
-                }
+                ChatInfo.LoadFromJSON(chatInfoFilePath);
             }
             if (File.Exists(offsetFilePath))
             {
@@ -84,7 +76,9 @@ namespace TelegramBot
 
         private async static Task<int> Startup(string[] args)
         {
-            if (args.Contains("verbose")) optionsVerbose = true;
+            Console.Write(LogPath);
+            if (args.Contains("verbose")) IsLogVerbose = true;
+            LogPath = docsPath;
             apiKey = StartupTryLoadAPIKeyFromFile();
             if (apiKey.Length < 1)
             {

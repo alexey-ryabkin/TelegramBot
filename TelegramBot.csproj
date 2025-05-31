@@ -22,6 +22,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="Logger">
+      <HintPath>..\..\Logger\bin\Release\net8.0\Logger.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="MarkovChains">
+      <HintPath>MarkovChains.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="quotations.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

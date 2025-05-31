@@ -1,4 +1,4 @@
-﻿using static TelegramBot.Logger;
+﻿using static Logger.Logger;
 namespace TelegramBot
 {
     enum SearchStatus: byte
@@ -56,22 +56,22 @@ namespace TelegramBot
         }
         internal static QuotationsFinder GetQuotationsFinder()
         {
-            return GetQuotationsFinder(availableQuotationFiles[0]);
+            return GetQuotationsFinder(0);
         }
         /// <summary>
         /// Метод, который нужно использовать вместо конструктора для экономии места в памяти.
         /// </summary>
         /// <param name="filepath">Название файла с цитатами</param>
         /// <returns></returns>
-        internal static QuotationsFinder GetQuotationsFinder(string filepath)
+        internal static QuotationsFinder GetQuotationsFinder(int fileNumber)
         {
-            if (QuotationsFinders.ContainsKey(filepath))
+            if (QuotationsFinders.ContainsKey(availableQuotationFiles[fileNumber]))
             {
-                return QuotationsFinders[filepath];
+                return QuotationsFinders[availableQuotationFiles[fileNumber]];
             }
             else
             {
-                Log("Не удалось найти файл {0} в словаре QuotationsFinders. Возвращаю цитаты по умолчанию.", filepath);
+                Log("Не удалось найти файл {0} в словаре QuotationsFinders. Возвращаю цитаты по умолчанию.", availableQuotationFiles[fileNumber]);
                 return QuotationsFinders[availableQuotationFiles[0]];
             }
         }

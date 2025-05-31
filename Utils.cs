@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using static TelegramBot.ChatInfo;
-using static TelegramBot.Logger;
+using static Logger.Logger;
 using static TelegramBot.TelegramBot;
 
 

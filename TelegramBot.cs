@@ -1,7 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using static TelegramBot.Logger;
+using static Logger.Logger;
 using static TelegramBot.Utils;
 using static TelegramBot.ChatInfo;
 
@@ -84,7 +84,7 @@ namespace TelegramBot
                 LogVerbose("Текст добавлен в цепь Маркова.");
             }
 
-            TimeSpan untilNewMessage = new TimeSpan(0, 0, 30) - (DateTime.Now - chat.LastMessage);
+            TimeSpan untilNewMessage = new TimeSpan(0, 0, chat.TimeoutSec) - (DateTime.Now - chat.LastMessage);
             if (untilNewMessage.Ticks <= 0)
             {
                 RandomAction roll = chat.RandomActionGenerator.Next();

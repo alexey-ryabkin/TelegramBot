@@ -1,13 +1,10 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Text;
+﻿using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using KaimiraGames;
-using Telegram.Bot.Types;
-using static TelegramBot.Logger;
-using static TelegramBot.MarkovChain;
+using MarkovChains;
+using static Logger.Logger;
 using static TelegramBot.QuotationsFinder;
 using static TelegramBot.Utils;
 
@@ -49,7 +46,7 @@ namespace TelegramBot
         /// Словарь, в котором ключ — слово, а значение — количество раз, когда это слово встречалось в чате.
         /// </summary>
         [JsonInclude]
-        internal Dictionary<string, int> Words { get; set; } = new();
+        internal Dictionary<string, int> Words { get; set; }
         /// <summary>
         /// Словарь, в котором ключ — идентификатор сообщения, а значение — массив слов, которые были найдены в этом сообщении.
         /// Слово — слово длинее 4 букв в нижнем регистре.
@@ -84,6 +81,7 @@ namespace TelegramBot
             {
                 this.ChatId = ChatId;
                 Chats.Add(ChatId, this);
+                Words = new Dictionary<string, int>();
                 QuotationsFinder = GetQuotationsFinder();
                 QuotationsFileNumber = QuotationsFinder.fileNumber;
                 ShortenQuotes = true;
@@ -106,7 +104,7 @@ namespace TelegramBot
         public ChatInfo(long ChatId,
             Dictionary<string, int> Words, 
             Dictionary<int, string[]> Messages,
-            string QuotationsFileName,
+            int QuotationsFileNumber,
             bool ShortenQuotes,
             MarkovChain MarkovMessages,
             DateTime LastMessage,
@@ -124,8 +122,8 @@ namespace TelegramBot
                 this.Words = Words;
                 this.Messages = Messages;
                 Chats.Add(ChatId, this);
-                QuotationsFinder = GetQuotationsFinder(QuotationsFileName);
-                QuotationsFileNumber = QuotationsFinder.fileNumber;
+                QuotationsFinder = GetQuotationsFinder(QuotationsFileNumber);
+                this.QuotationsFileNumber = QuotationsFinder.fileNumber;
                 this.ShortenQuotes = ShortenQuotes;
                 this.MarkovMessages = MarkovMessages;
                 this.LastMessage = LastMessage;
@@ -204,11 +202,11 @@ namespace TelegramBot
             {
                 string jsonString = File.ReadAllText(fileName);
                 JsonSerializer.Deserialize<List<ChatInfo>>(jsonString);
-                Log("ChatInfo успешно загружены из файла {0}.", fileName);
+                Log("Данные ChatInfo успешно загружены из файла {0}.", fileName);
             }
-            catch
+            catch (Exception ex)
             {
-                Log("Загрузка ChatInfo из файла {0} не удалась.", fileName);
+                Log("Загрузка ChatInfo из файла {0} не удалась. Ошибка:\n{1}", fileName, ex);
             }
         }
         internal static void SetQuotationsFile(long chatId, string fileNumber)
@@ -219,7 +217,7 @@ namespace TelegramBot
                 {
                     try
                     {
-                        Chats[chatId].QuotationsFinder = GetQuotationsFinder(availableQuotationFiles[fileNumberParsed]);
+                        Chats[chatId].QuotationsFinder = GetQuotationsFinder(fileNumberParsed);
                         Chats[chatId].QuotationsFileNumber = fileNumberParsed;
 
                         SendMessage(chatId, $"Файл цитат успешно установлен. Теперь будут говорить {availableQuotationFileDescriptions[fileNumberParsed]}.");
@@ -309,6 +307,7 @@ namespace TelegramBot
                     {
                         Chats[chatId].RandomActionCoefficients[action] = coeff;
                         SendMessage(chatId, $"{RandomActionDescriptions[action]}: теперь частота {coeff}.");
+                        Chats[chatId].UpdateRAG();
                         return;
                     }
                     catch (Exception ex)
