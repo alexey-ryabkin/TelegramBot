@@ -53,6 +53,26 @@ namespace TelegramBot
             }
             return string.Empty;
         }
+        private static string StartupTryLoadDeepseekAPIKeyFromFile()
+        {
+            try
+            {
+                if (File.Exists(deepseekAPIKeyFilePath))
+                {
+                    string fileContents = File.ReadAllText(deepseekAPIKeyFilePath);
+                    if (fileContents.Length > 0)
+                    {
+                        Log("Ключ API DeepSeek загружен из документов пользователя. Не забудьте удалить файл, если не хотите его сохранять: {0}", deepseekAPIKeyFilePath);
+                    }
+                    return fileContents;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogVerbose($"Ошибка при загрузке ключа API Deepseek из файла: {ex.Message}");
+            }
+            return string.Empty;
+        }
         private static void StartupSaveAPIKeyToFile()
         {
             try
@@ -67,11 +87,31 @@ namespace TelegramBot
                 LogVerbose($"Ошибка при сохранении ключа API в файл: {ex.Message}");
             }
         }
+        private static void StartupSaveDeepseekAPIKeyToFile()
+        {
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(deepseekAPIKeyFilePath));
+                LogVerbose("Сохранение ключа API Deepseek в файл {0}", deepseekAPIKeyFilePath);
+                File.WriteAllText(deepseekAPIKeyFilePath, deepseekAPIKey);
+                Log("Ключ API Deepseek сохранён в документы пользователя. Не забудьте удалить файл, если не хотите его сохранять\n{0}", apiKeyFilePath);
+            }
+            catch (Exception ex)
+            {
+                LogVerbose($"Ошибка при сохранении ключа API Deepseek в файл: {ex.Message}");
+            }
+        }
         private static string StartupLoadAPIKeyFromSecrets()
         {
             LogVerbose("Загрузка ключа API из локальных секретов.");
             IConfigurationRoot config = new ConfigurationBuilder().AddUserSecrets<TelegramBot>().Build();
             return config["APIKey"] ?? string.Empty;
+        }
+        private static string StartupLoadDeepseekAPIKeyFromSecrets()
+        {
+            LogVerbose("Загрузка ключа API Deepseek из локальных секретов.");
+            IConfigurationRoot config = new ConfigurationBuilder().AddUserSecrets<TelegramBot>().Build();
+            return config["DeepseekAPIKey"] ?? string.Empty;
         }
 
         private async static Task<int> Startup(string[] args)
@@ -106,6 +146,33 @@ namespace TelegramBot
             {
                 Log("Ключ API загружен из файла.");
             }
+            deepseekAPIKey = StartupTryLoadDeepseekAPIKeyFromFile();
+            if (deepseekAPIKey.Length < 1)
+            {
+                deepseekAPIKey = StartupLoadDeepseekAPIKeyFromSecrets();
+                if (deepseekAPIKey.Length < 1)
+                {
+                    Log("Введите ключ API Deepseek:");
+                    deepseekAPIKey = GetInput();
+                }
+                else
+                {
+                    Log("Ключ API Deepseek загружен из локальных секретов.");
+                }
+                if (deepseekAPIKey.Length < 1)
+                {
+                    Log("Ключ API Deepseek не был введён. Программа завершает работу с кодом 1.");
+                    return 1;
+                }
+                else
+                {
+                    StartupSaveDeepseekAPIKeyToFile();
+                }
+            }
+            else
+            {
+                Log("Ключ API Deepseek загружен из файла.");
+            }
 
             LogVerbose("Начинается создание связи с ботом.");
             try { bot = new TelegramBotClient(apiKey, cancellationToken: cts.Token); }
@@ -132,16 +199,17 @@ namespace TelegramBot
             BotCommand[] botCommands =
             {
                 //new BotCommand("maoperiod", "Назначает число слов, при достижении которых бот будет подбирать цитату. Параметр — целое положительное число, например, /maoperiod 100."),
-                new BotCommand("quotationsfile", "Выбор цитат."),
-                new BotCommand("help", "Описывает себя."),
-                new BotCommand("settings", "Показать настройки."),
-                new BotCommand("turnonshortening", "Включает сокращение цитат."),
-                new BotCommand("turnoffshortening", "Отключает сокращение цитат."),
-                new BotCommand("sendquote", "Отправляет цитату резко."),
-                new BotCommand("lazyness", "Чем больше леность, тем реже действие."),
-                new BotCommand("quotecoeff", "Чем больше коэффициент, тем чаще действие."),
-                new BotCommand("msgcoeff", "Чем больше коэффициент, тем чаще действие."),
-                new BotCommand("timeout", "Slow mode бота."),
+                new BotCommand("quotationsfile", "Набор цитат"),
+                new BotCommand("help", "Help"),
+                new BotCommand("settings", "Настройки"),
+                new BotCommand("turnonshortening", "Цитаты кратко"),
+                new BotCommand("turnoffshortening", "Цитаты полностью"),
+                new BotCommand("sendquote", "Цитата."),
+                new BotCommand("lazyness", "0 болтает, 100 молчит"),
+                new BotCommand("quotecoeff", "Частота цитат"),
+                new BotCommand("msgcoeff", "Частота сообщений"),
+                new BotCommand("timeout", "Min перерыв"),
+                new BotCommand("explain", "Поясни"),
             };
             await bot.SetMyCommands(botCommands);
 

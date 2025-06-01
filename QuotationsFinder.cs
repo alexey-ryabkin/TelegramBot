@@ -102,6 +102,12 @@ namespace TelegramBot
                 return new SearchResult() { status = SearchStatus.NoSource };
             }
 
+            if (words.Count == 0)
+            {
+                Log("В Search подан некорректный пустой словарь!");
+                return searchResult;
+            }
+
             wordQuery = from word in words
                         orderby word.Value ascending
                         select word;
@@ -110,10 +116,18 @@ namespace TelegramBot
             while (wordsEnum.MoveNext() && !wordFound)
             {
                 currentWord = wordsEnum.Current.Key;
-                currentWordShortened = currentWord[..^1];
-                quotationQuery = from Quotation quotationInQuery in quotationsDB
-                                 where quotationInQuery.text.Contains(currentWordShortened)
-                                 select quotationInQuery;
+                if (currentWord.Length == 0) continue;
+                if (currentWord.Length > 3)
+                {
+                    currentWordShortened = currentWord[..^1];
+                }
+                else
+                {
+                    currentWordShortened = currentWord;
+                }
+                    quotationQuery = from Quotation quotationInQuery in quotationsDB
+                                     where quotationInQuery.text.Contains(currentWordShortened)
+                                     select quotationInQuery;
                 numberOfResults = quotationQuery.Count();
                 Log("Найдено {0} цитат, содержащих слово {1}.", numberOfResults, currentWord);
                 if (numberOfResults > 0)
@@ -137,6 +151,19 @@ namespace TelegramBot
                     break;
             }
             return searchResult;
+        }
+        internal SearchResult Search(string[] words)
+        {
+            Dictionary<string, int> uniformWordsDistribution = new();
+            foreach(string word in words)
+            {
+                uniformWordsDistribution.Add(word, 1);
+            }
+            return Search(uniformWordsDistribution);
+        }
+        internal SearchResult Search(string word)
+        {
+            return Search(new string[] { word });
         }
     }
 }

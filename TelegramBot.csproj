@@ -18,10 +18,14 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
+    <PackageReference Include="OpenAI" Version="2.1.0" />
     <PackageReference Include="Telegram.Bot" Version="22.5.1" />
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="DeepseekWrapper">
+      <HintPath>DeepseekWrapper.dll</HintPath>
+    </Reference>
     <Reference Include="Logger">
       <HintPath>..\..\Logger\bin\Release\net8.0\Logger.dll</HintPath>
       <Private>True</Private>

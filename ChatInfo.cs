@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using KaimiraGames;
 using MarkovChains;
+using Telegram.Bot.Types;
 using static Logger.Logger;
 using static TelegramBot.QuotationsFinder;
 using static TelegramBot.Utils;
@@ -70,6 +71,14 @@ namespace TelegramBot
         [JsonInclude]
         internal int TimeoutSec { get; set; }
         internal WeightedList<RandomAction> RandomActionGenerator { get; set; }
+        [JsonInclude]
+        internal Queue<string> last5msgs = new Queue<string>();
+        internal DeepseekWrapper.DeepseekWrapper deepseekWrapper;
+        [JsonInclude]
+        internal int explanationsToday;
+        [JsonInclude]
+        internal DateTime explanationsDay;
+        internal static int dailyExplanationsPerChat = 10;
         public ChatInfo(long ChatId)
         {
             if (Chats.ContainsKey(ChatId))
@@ -97,6 +106,9 @@ namespace TelegramBot
                 RandomActionGenerator = new WeightedList<RandomAction>();
                 UpdateRAG();
                 TimeoutSec = 30;
+                deepseekWrapper = new DeepseekWrapper.DeepseekWrapper(TelegramBot.deepseekAPIKey);
+                explanationsDay = DateTime.Now.Date;
+                explanationsToday = 0;
                 Log("Чат {0} добавлен в словарь обслуживаемых чатов.", ChatId);
             }
         }
@@ -109,7 +121,10 @@ namespace TelegramBot
             MarkovChain MarkovMessages,
             DateTime LastMessage,
             Dictionary<RandomAction, int> RandomActionCoefficients,
-            int TimeoutSec)
+            int TimeoutSec = 30,
+            Queue<string>? last5msgs = null,
+            int explanationsToday = 0,
+            DateTime explanationsDay = new DateTime())
         {
             if (Chats.ContainsKey(ChatId))
             {
@@ -132,6 +147,11 @@ namespace TelegramBot
                 RandomActionGenerator = new WeightedList<RandomAction>();
                 UpdateRAG();
                 this.TimeoutSec = TimeoutSec;
+                if (last5msgs == null) this.last5msgs = new();
+                else this.last5msgs = last5msgs;
+                deepseekWrapper = new DeepseekWrapper.DeepseekWrapper(TelegramBot.deepseekAPIKey);
+                this.explanationsToday = explanationsToday;
+                this.explanationsDay = explanationsDay;
                 Log("Чат {0} загружен с диска в словарь обслуживаемых чатов.", ChatId);
             }
         }
@@ -351,6 +371,40 @@ namespace TelegramBot
             {
                 Log("По идее недостижимый код, чата {0} нет в списке чатов в момент смены настройки.", chatId);
             }
+        }
+        internal void Enqueue(Message msg)
+        {
+            string text, name;
+            User? user;
+            string? username;
+
+            if (msg.ReplyToMessage is not null) Enqueue(msg.ReplyToMessage);
+            switch (msg)
+            {
+                case { Text: { } temp }: text = temp; break;
+                case { Caption: { } temp }: text = temp; break;
+                default:
+                    LogVerbose("Enqueue: Получено сообщение, в котором нет текста: {0}", msg.Type.ToString() ?? "NULL");
+                    return;
+            }
+            user = msg.From;
+            if (user is not null)
+            {
+                name = user.FirstName;
+                username = user.Username;
+                if (user.Username is not null)
+                {
+                    name += $" @{username}";
+                }
+            }
+            else
+            {
+                LogVerbose("Enqueue: Получено сообщение, у которого нет отправителя: {0}", msg.Type.ToString() ?? "NULL");
+                return;
+            }
+
+            last5msgs.Enqueue($"{name}: {text}");
+            if (last5msgs.Count > 5) last5msgs.Dequeue();
         }
     }
 }
