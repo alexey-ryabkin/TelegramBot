@@ -210,6 +210,9 @@ namespace TelegramBot
                 new BotCommand("msgcoeff", "Частота сообщений"),
                 new BotCommand("timeout", "Min перерыв"),
                 new BotCommand("explain", "Поясни"),
+                new BotCommand("ryabkin", "Божество"),
+                new BotCommand("start", "Начало"),
+                new BotCommand("github", "Исходный код проекта"),
             };
             await bot.SetMyCommands(botCommands);
 

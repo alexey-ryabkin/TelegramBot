@@ -78,17 +78,27 @@ namespace TelegramBot
             }
             LogVerbose("Получено обновление, в котором есть текст длиной {0} символов.", text.Length);
 
+            // Обработка назначения настроек в раздельных сообщениях
+            if (chat.SettingsState != Setting.None)
+            {
+                chat.EndChangingSetting(text);
+            }
+
+            // Хранение последних X сообщений
             chat.Enqueue(msg);
 
+            // Сохранение информации для цитат
             string[] words = ExtractWords(text);
             chat.AddMessage(msg.MessageId, words);
 
+            // Сохранение данных для генерации цепей Маркова. Видимо, исключая пересылы.
             if (msg.ForwardOrigin is null)
             {
                 chat.MarkovMessages.AddText(text);
                 LogVerbose("Текст добавлен в цепь Маркова.");
             }
 
+            // Случайное действие, если бот молчит более заданного количества секунд
             TimeSpan untilNewMessage = new TimeSpan(0, 0, chat.TimeoutSec) - (DateTime.Now - chat.LastMessage);
             if (untilNewMessage.Ticks <= 0)
             {
@@ -115,10 +125,14 @@ namespace TelegramBot
                 Log("Для чата {0} пока рано писать сообщение. Остапось ещё {1} секунд.", msg.Chat, untilNewMessage.TotalSeconds);
             }
 
+            // Обработка команд
             switch (text)
             {
                 case string match when Regex.IsMatch(match.ToLower(), @"^\/quotationsfile(@littleryabot)?\s+-?\d+$"):
                     SetQuotationsFile(msg.Chat.Id, Regex.Match(text, @"-?\d+").Value);
+                    break;
+                case string match when Regex.IsMatch(match.ToLower(), @"^\/quotationsfile(@littleryabot)?$"):
+                    chat.StartChangingSetting(Setting.QuotationsFile);
                     break;
                 case string match when Regex.IsMatch(match.ToLower(), @"^\/help(@littleryabot)?$"):
                     SendHelp(msg.Chat.Id);
@@ -144,17 +158,38 @@ namespace TelegramBot
                 case string match when Regex.IsMatch(match.ToLower(), @"^\/lazyness(@littleryabot)?\s+-?\d+$"):
                     SetCoeff(msg.Chat.Id, Regex.Match(text, @"-?\d+").Value, RandomAction.Nothing);
                     break;
+                case string match when Regex.IsMatch(match.ToLower(), @"^\/lazyness(@littleryabot)?$"):
+                    chat.StartChangingSetting(Setting.Lazyness);
+                    break;
                 case string match when Regex.IsMatch(match.ToLower(), @"^\/quotecoeff(@littleryabot)?\s+-?\d+$"):
                     SetCoeff(msg.Chat.Id, Regex.Match(text, @"-?\d+").Value, RandomAction.MaoQuote);
+                    break;
+                case string match when Regex.IsMatch(match.ToLower(), @"^\/quotecoeff(@littleryabot)?$"):
+                    chat.StartChangingSetting(Setting.Quotecoeff);
                     break;
                 case string match when Regex.IsMatch(match.ToLower(), @"^\/msgcoeff(@littleryabot)?\s+-?\d+$"):
                     SetCoeff(msg.Chat.Id, Regex.Match(text, @"-?\d+").Value, RandomAction.MarkovChain);
                     break;
+                case string match when Regex.IsMatch(match.ToLower(), @"^\/msgcoeff(@littleryabot)?$"):
+                    chat.StartChangingSetting(Setting.Msgcoeff);
+                    break;
                 case string match when Regex.IsMatch(match.ToLower(), @"^\/timeout(@littleryabot)?\s+-?\d+$"):
                     SetTimeout(msg.Chat.Id, Regex.Match(text, @"-?\d+").Value);
                     break;
-                case string match when (Regex.IsMatch(match.ToLower(), @"\/explain(@littleryabot)?") || NeedsExplaining(text)):
+                case string match when Regex.IsMatch(match.ToLower(), @"^\/timeout(@littleryabot)?$"):
+                    chat.StartChangingSetting(Setting.Timeout);
+                    break;
+                case string match when Regex.IsMatch(match.ToLower(), @"^\/explain(@littleryabot)?") || NeedsExplaining(text):
                     Explain(msg);
+                    break;
+                case string match when Regex.IsMatch(match.ToLower(), @"^\/ryabkin(@littleryabot)?"):
+                    SendRyabkin(msg.Chat.Id);
+                    break;
+                case string match when Regex.IsMatch(match.ToLower(), @"^\/start(@littleryabot)?"):
+                    SendStart(msg.Chat.Id);
+                    break;
+                case string match when Regex.IsMatch(match.ToLower(), @"^\/github(@littleryabot)?"):
+                    SendGithub(msg.Chat.Id);
                     break;
             }
         }
@@ -200,6 +235,17 @@ namespace TelegramBot
                         break;
                     case "remove 0":
                         Remove0s();
+                        break;
+                    case string match when Regex.IsMatch(match.ToLower(), @"^send to all "):
+                        SendMessageToAllChats(match.Replace("send to all ", ""));
+                        break;
+                    case string match when Regex.IsMatch(match.ToLower(), @"^send release message"):
+                        SendMessageToAllChats(
+                            """
+                            Всем привет! Бот готов.
+
+                            Чтобы узнать о его функциях, нажмите на /start
+                            """);
                         break;
 
                 }

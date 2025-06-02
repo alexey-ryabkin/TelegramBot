@@ -1,10 +1,13 @@
-﻿using System.Text;
+﻿using System.Collections.Immutable;
+using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using KaimiraGames;
 using MarkovChains;
 using Telegram.Bot.Types;
+using static System.Net.Mime.MediaTypeNames;
 using static Logger.Logger;
 using static TelegramBot.QuotationsFinder;
 using static TelegramBot.Utils;
@@ -16,16 +19,25 @@ namespace TelegramBot
     /// </summary>
     internal class ChatInfo
     {
-        /// <summary>
-        /// Словарь чатов, в которых работает бот. Ключ — ChatId, значение — экземпляр класса ChatInfo.
-        /// </summary>
-        internal static Dictionary<long, ChatInfo> Chats { get; set; } = new();
         internal enum RandomAction : byte
         {
             Nothing = 0,
             MaoQuote = 1,
             MarkovChain = 2
         }
+        internal enum Setting: byte
+        {
+            None = 0,
+            QuotationsFile = 1,
+            Lazyness = 2,
+            Quotecoeff = 3,
+            Msgcoeff = 4,
+            Timeout = 5
+        }
+        /// <summary>
+        /// Словарь чатов, в которых работает бот. Ключ — ChatId, значение — экземпляр класса ChatInfo.
+        /// </summary>
+        internal static Dictionary<long, ChatInfo> Chats { get; set; } = new();
         internal static Dictionary<RandomAction, string> RandomActionDescriptions = new Dictionary<RandomAction, string>
         {
             { RandomAction.Nothing,      "Ничего не делать" },
@@ -38,6 +50,17 @@ namespace TelegramBot
             { RandomAction.MaoQuote,     "quotecoeff" },
             { RandomAction.MarkovChain,  "msgcoeff" },
         };
+        internal static int dailyExplanationsPerChat = 10;
+        private static ImmutableDictionary<Setting, string> SettingsInlineExplanations = ImmutableDictionary.CreateRange
+            (
+                [
+                    KeyValuePair.Create(Setting.QuotationsFile, $"Теперь введите число, обозначающее файл с цитатами, которые будет отправлять бот.\n\n{quotsDescriptions}."),
+                    KeyValuePair.Create(Setting.Lazyness, "Введите число, которое характеризует, насколько сильно бот будет лениться и ничего не делать. Если ввести 0, то МКБ будет отвечать на КАЖДОЕ сообщение. Если ввести большое число, по сравнению с /quotecoeff и /msgcoeff, то МКБ будет сидеть молчать, как определённые личности после «Пёрл Харбора»."),
+                    KeyValuePair.Create(Setting.Quotecoeff, "Введите число, которое характеризует, насколько часто бот будет отправлять цитаты. 0 — никогда, 100 — постоянно."),
+                    KeyValuePair.Create(Setting.Msgcoeff, "Введите число, которое характеризует, насколько часто бот будет писать смешные сообщения. 0 — никогда, 100 — постоянно."),
+                    KeyValuePair.Create(Setting.Timeout, "Введите перерыв между случайными сообщениями бота в секундах."),
+                ]
+            );
         /// <summary>
         /// Идентификатор чата, тип значения long по требованию библиотеки.
         /// </summary>
@@ -78,7 +101,7 @@ namespace TelegramBot
         internal int explanationsToday;
         [JsonInclude]
         internal DateTime explanationsDay;
-        internal static int dailyExplanationsPerChat = 10;
+        internal Setting SettingsState = Setting.None;
         public ChatInfo(long ChatId)
         {
             if (Chats.ContainsKey(ChatId))
@@ -405,6 +428,33 @@ namespace TelegramBot
 
             last5msgs.Enqueue($"{name}: {text}");
             if (last5msgs.Count > 5) last5msgs.Dequeue();
+        }
+        internal void StartChangingSetting(Setting setting)
+        {
+            SettingsState = setting;
+            SendMessage(ChatId, SettingsInlineExplanations[setting]);
+        }
+        internal void EndChangingSetting(string value)
+        {
+            switch (SettingsState)
+            {
+                case Setting.QuotationsFile:
+                    SetQuotationsFile(ChatId, value);
+                    break;
+                case Setting.Lazyness:
+                    SetCoeff(ChatId, value, RandomAction.Nothing);
+                    break;
+                case Setting.Quotecoeff:
+                    SetCoeff(ChatId, value, RandomAction.MaoQuote);
+                    break;
+                case Setting.Msgcoeff:
+                    SetCoeff(ChatId, value, RandomAction.MarkovChain);
+                    break;
+                case Setting.Timeout:
+                    SetTimeout(ChatId, value);
+                    break;
+            }
+            SettingsState = Setting.None;
         }
     }
 }

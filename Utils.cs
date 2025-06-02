@@ -138,19 +138,43 @@ namespace TelegramBot
         {
             string message = """
                 
-                Привет! Я маленький красный бот.
+                Я маленький красный бот.
 
                 Периодически я отправляю в чат тематическую цитату великого человека. Иногда поясняю непонятные моменты. Иногда решаю сказать что-то умное на темы, обсуждаемые в чате.
 
                 Если ты попытаешься удалить меня из чата, то всю твою семью настигнут 70 лет неудач, а все их потомки окажутся гендерфлюидными демибоями. Но тебе ничего плохого не будет, это главное.
-
-                /settings для просмотра и редактирования настроек.
+                
+                /start для получения приветственного сообщения.
                 /help для текущего сообщения. Но ты его и так видишь.
+                /settings для просмотра и редактирования настроек.
                 /sendquote для того, чтобы отправить цитату прямо сейчас.
+                /explain для того, чтобы бот пояснил что-то непонятное из чата.
+                /ryabkin
 
                 Городецкий, верни удочку.
-                
                 """;
+            SendMessage(chatId, message);
+        }
+        internal static void SendRyabkin(long chatId)
+        {
+            string message = "Вам только написал сам великий Рябкин. Я бы на вашем месте благоговел." +
+                "\n\nДенег можно отправить по адресу https://www.tinkoff.ru/rm/r_teqUPiQWdJ.qUEggzppMX/VKJ4497278" +
+                "\n\nили USDT TRC20\nTLdkygpT1o7QexEGgEYr3rNQNgcyGLwaCY";
+            SendMessage(chatId, message);
+        }
+        internal static void SendStart(long chatId)
+        {
+            string message = "Привет! Я маленький красный бот." + 
+                "\n\nДля начала использования добавьте меня в любой чат. Я буду учиться на ваших сообщениях и участвовать в диалоге." + 
+                "\n\nПолный список функций доступен по команде /help.";
+            SendMessage(chatId, message);
+        }
+        internal static void SendGithub(long chatId)
+        {
+            string message = "https://github.com/alexey-ryabkin/TelegramBot\n" +
+                "https://github.com/alexey-ryabkin/MarkovChains\n" +
+                "https://github.com/alexey-ryabkin/DeepseekWrapper\n" +
+                "https://github.com/alexey-ryabkin/Logger";
             SendMessage(chatId, message);
         }
         internal static void SendSettings(long chatId)
@@ -159,28 +183,22 @@ namespace TelegramBot
             StringBuilder sb = new StringBuilder();
             foreach (RandomAction key in chat.RandomActionCoefficients.Keys)
             {
-                // /lazyness 40 — Ничего не делать
-                sb.AppendLine($"/{RandomActionSettingCommand[key]} " +
-                    $"{chat.RandomActionCoefficients[key]} — " +
-                    $"{RandomActionDescriptions[key]}");
+                // Ничего не делать — 40 /lazyness
+                sb.AppendLine($"/{RandomActionSettingCommand[key]} " + 
+                    $"{RandomActionDescriptions[key]} " +
+                    $" — {chat.RandomActionCoefficients[key]}."
+                    );
             }
             string randomActionsDescriptions = sb.ToString();
 
 
             string message = string.Format(
-            "Коэффициенты лености:\n" +
-            "{0}\n" +
-            "где N — натуральное число.\n\n" +
-            "Набор цитат: {1}.\n" +
-            "/quotationsfile N,\n" +
-            "где N — номер файла.\n" +
-            "{2}.\n\n" +
-            (chat.ShortenQuotes ? "Цитаты сокращаются до одного предложения.\n" : "Цитаты постятся полностью.\n") +
-            (chat.ShortenQuotes ? "/turnoffshortening — отключить сокращение.\n\n" : "/turnonshortening — включить сокращение.\n\n") +
-            $"/timeout {chat.TimeoutSec} — время между сообщениями, секунд.",
-            randomActionsDescriptions,
-            QuotationsFinder.availableQuotationFileDescriptions[chat.QuotationsFileNumber],
-            QuotationsFinder.quotsDescriptions
+                "Частота действий МКБ\n" +
+                $"{randomActionsDescriptions}" +
+                $"/timeout Время между сообщениями — {chat.TimeoutSec} секунд.\n\n" +
+                $"/quotationsfile Набор цитат: {QuotationsFinder.availableQuotationFileDescriptions[chat.QuotationsFileNumber]}.\n\n" +
+                (chat.ShortenQuotes ? "Цитаты сокращаются до одного предложения.\n" : "Цитаты постятся полностью.\n") +
+                (chat.ShortenQuotes ? "/turnoffshortening — отключить сокращение.\n\n" : "/turnonshortening — включить сокращение.\n\n")
             );
             SendMessage(chatId, message);
         }
@@ -356,7 +374,8 @@ namespace TelegramBot
                 @"не\s+доходит",
                 @"мысль\s+не\s+дошла",
                 @"я\s+не\s+могу\s+этого\s+постичь",
-                @"это\s+не\s+укладывается\s+у\s+меня\s+в\s+голове",
+                @"не\s+укладывается\s+у\s+меня\s+в\s+голове",
+                @"не\s+укладывается\s+в\s+моей\s+голове",
                 @"это\s+не\s+умещается\s+в\s+моем\s+сознании",
                 @"я\s+не\s+могу\s+этого\s+осознать",
                 @"я\s+не\s+могу\s+этого\s+переварить",
@@ -462,6 +481,17 @@ namespace TelegramBot
             else
             {
                 SendMessage(chat.ChatId, $"Я бы очень хотел пояснить, что вы тут не понимаете, но ваш чат израсходовал бюджет на {dailyExplanationsPerChat} менсплейнингов в день(((("); 
+            }
+        }
+        /// <summary>
+        /// Отправляет сообщение во все чаты, в которых работает бот.
+        /// </summary>
+        /// <param name="message">Сообщение</param>
+        internal static void SendMessageToAllChats(string message)
+        {
+            foreach (long chatid in Chats.Keys)
+            {
+                SendMessage(chatid, message + "\n\n/ryabkin");
             }
         }
     }
