@@ -7,6 +7,7 @@ using DeepseekWrapper;
 using static Logger.Logger;
 using static TelegramBot.ChatInfo;
 using static TelegramBot.TelegramBot;
+using Telegram.Bot.Requests.Abstractions;
 
 
 
@@ -493,6 +494,10 @@ namespace TelegramBot
             {
                 SendMessage(chatid, message + "\n\n/ryabkin");
             }
+        }
+        internal static void SendMessageToChat(ChatInfo chat, string message)
+        {
+            SendMessage(chat.ChatId, message + "\n\n/ryabkin");
         }
     }
 }

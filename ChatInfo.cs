@@ -34,6 +34,10 @@ namespace TelegramBot
             Msgcoeff = 4,
             Timeout = 5
         }
+        [JsonIgnore]
+        private static long[] _bannedChats = {
+            -1001478044575, // Ктап 
+        };
         /// <summary>
         /// Словарь чатов, в которых работает бот. Ключ — ChatId, значение — экземпляр класса ChatInfo.
         /// </summary>
@@ -102,6 +106,7 @@ namespace TelegramBot
         [JsonInclude]
         internal DateTime explanationsDay;
         internal Setting SettingsState = Setting.None;
+        internal bool Banned = false;
         public ChatInfo(long ChatId)
         {
             if (Chats.ContainsKey(ChatId))
@@ -111,6 +116,8 @@ namespace TelegramBot
             }
             else
             {
+                if (_bannedChats.Contains(ChatId)) this.Banned = true;
+
                 this.ChatId = ChatId;
                 Chats.Add(ChatId, this);
                 Words = new Dictionary<string, int>();
@@ -156,6 +163,8 @@ namespace TelegramBot
             }
             else
             {
+                if (_bannedChats.Contains(ChatId)) this.Banned = true;
+
                 this.ChatId = ChatId;
                 this.Words = Words;
                 this.Messages = Messages;
@@ -296,6 +305,7 @@ namespace TelegramBot
             }
             sb.AppendLine($"QuotationsFileName: {availableQuotationFileDescriptions[QuotationsFileNumber]}");
             sb.Append($"ShortenQuotes: {ShortenQuotes}");
+            //sb.Append(MarkovMessages.ToString());
             return sb.ToString();
         }
 

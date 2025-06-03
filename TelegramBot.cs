@@ -68,6 +68,8 @@ namespace TelegramBot
             if (!Chats.ContainsKey(chatId)) new ChatInfo(chatId);
             ChatInfo chat = Chats[chatId];
 
+            if (chat.Banned) return;
+
             switch (msg)
             {
                 case { Text: { } temp }: text = temp; break;
@@ -224,7 +226,7 @@ namespace TelegramBot
                     case "print chatinfo":
                         foreach (ChatInfo chat in Chats.Values)
                         {
-                            Console.WriteLine(chat);
+                            Log(chat.ToString());
                         }
                         break;
                     case "load chatinfo":
@@ -247,8 +249,12 @@ namespace TelegramBot
                             Чтобы узнать о его функциях, нажмите на /start
                             """);
                         break;
+                    case string match when Regex.IsMatch(match.ToLower(), @"^send to ktap "):
+                        SendMessageToChat(Chats[-1001478044575], match.Replace("send to all ", ""));
+                        break;
 
                 }
+                //Log(Chats[-1001478044575].MarkovMessages.Next);
             }
             cts.Cancel();
             await mainCycle;
